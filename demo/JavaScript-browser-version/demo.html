@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>JavaScript判断浏览器类型及版本</title>
+<script src="/js/jquery-2.0.3.min.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/demo/CSS/atelier-cave-light.css" />
+<script type="text/javascript" src="//cdn.staticfile.org/prettify/r298/prettify.min.js"></script>
+<style type="text/css">
+	.main { margin: 50px; font-size: 15px; }
+	.main .show p { font-size: 16px; margin-bottom: 20px; }
+	.main .show p span { color: red; }
+</style>
+<script type="text/javascript">
+    $(function () {
+		var Sys = {};
+		var ua = navigator.userAgent.toLowerCase();
+		var s;
+		(s = ua.match(/rv:([\d.]+)\) like gecko/)) ? Sys.ie = s[1] :
+		(s = ua.match(/msie ([\d.]+)/)) ? Sys.ie = s[1] :
+		(s = ua.match(/firefox\/([\d.]+)/)) ? Sys.firefox = s[1] :
+		(s = ua.match(/chrome\/([\d.]+)/)) ? Sys.chrome = s[1] :
+		(s = ua.match(/opera.([\d.]+)/)) ? Sys.opera = s[1] :
+		(s = ua.match(/version\/([\d.]+).*safari/)) ? Sys.safari = s[1] : 0;
+		
+		if (Sys.ie) $('span').text('IE: ' + Sys.ie);
+		if (Sys.firefox) $('span').text('Firefox: ' + Sys.firefox);
+		if (Sys.chrome) $('span').text('Chrome: ' + Sys.chrome);
+		if (Sys.opera) $('span').text('Opera: ' + Sys.opera);
+		if (Sys.safari) $('span').text('Safari: ' + Sys.safari);
+
+		$('pre.prettyprint').addClass('linenums');
+        prettyPrint();
+
+    });
+
+</script>
+
+ <link rel="alternate" href="/atom.xml" title="Gradatim's blog" type="application/atom+xml">
+</head>
+ <body>
+  <div class="main">
+        <div class="show">
+            <p>当前浏览器版本：<span></span></p>
+        </div>
+<pre class="prettyprint lang-js" style="
+    font-family: courier new,courier,monospace;
+    font-size: 18px;
+">$(function () {
+    var Sys = {};
+    var ua = navigator.userAgent.toLowerCase();
+    var s;
+    (s = ua.match(/rv:([\d.]+)\) like gecko/)) ? Sys.ie = s[1] :
+    (s = ua.match(/msie ([\d.]+)/)) ? Sys.ie = s[1] :
+    (s = ua.match(/firefox\/([\d.]+)/)) ? Sys.firefox = s[1] :
+    (s = ua.match(/chrome\/([\d.]+)/)) ? Sys.chrome = s[1] :
+    (s = ua.match(/opera.([\d.]+)/)) ? Sys.opera = s[1] :
+    (s = ua.match(/version\/([\d.]+).*safari/)) ? Sys.safari = s[1] : 0;
+    
+    if (Sys.ie) $('span').text('IE: ' + Sys.ie);
+    if (Sys.firefox) $('span').text('Firefox: ' + Sys.firefox);
+    if (Sys.chrome) $('span').text('Chrome: ' + Sys.chrome);
+    if (Sys.opera) $('span').text('Opera: ' + Sys.opera);
+    if (Sys.safari) $('span').text('Safari: ' + Sys.safari);
+});</pre>
+
+    </div>
+
+ </body>
+</html>

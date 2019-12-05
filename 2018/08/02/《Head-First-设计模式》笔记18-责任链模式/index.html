@@ -1,0 +1,3326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>《Head First 设计模式》笔记18-责任链模式 | Gradatim&#39;s blog</title>
+  <meta name="keywords" content=" 设计模式 ">
+  <meta name="description" content="《Head First 设计模式》笔记18-责任链模式 | Gradatim&#39;s blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="http:&#x2F;&#x2F;www.broadview.com.cn&#x2F;book&#x2F;3643https:&#x2F;&#x2F;github.com&#x2F;mybatis-book&#x2F;book  一般提到 MyBatis 缓存时都是指二级缓存。一级缓存默认会启用，且不能控制。 一级缓存@Test public void testL1Cache(){     &#x2F;&#x2F; 获取 sqlSession     SqlSession sqlSession">
+<meta name="keywords" content="Java,MyBatis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyBatis 10-缓存配置">
+<meta property="og:url" content="http:&#x2F;&#x2F;coolview.github.io&#x2F;2019&#x2F;12&#x2F;01&#x2F;MyBatis%2010-%E7%BC%93%E5%AD%98%E9%85%8D%E7%BD%AE&#x2F;index.html">
+<meta property="og:site_name" content="Gradatim&#39;s blog">
+<meta property="og:description" content="http:&#x2F;&#x2F;www.broadview.com.cn&#x2F;book&#x2F;3643https:&#x2F;&#x2F;github.com&#x2F;mybatis-book&#x2F;book  一般提到 MyBatis 缓存时都是指二级缓存。一级缓存默认会启用，且不能控制。 一级缓存@Test public void testL1Cache(){     &#x2F;&#x2F; 获取 sqlSession     SqlSession sqlSession">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-03T07:54:10.000Z">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/1460UaK0Z-15930.jpg">
+
+<link href="/css/style.css?v=1.0.1" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.0.1" rel="stylesheet">
+
+<link href="//cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+<link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<link href="//cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+<link href="//cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/jquery.autocomplete.min.js?v=1.0.1" ></script>
+
+<script src="//cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.bootcss.com/nprogress/0.2.0/nprogress.min.js"></script>
+
+
+<script id="dsq-count-scr" src="//coolview.disqus.com/count.js" async></script>
+
+
+<script src="/js/iconfont.js?v=1.0.1" ></script>
+
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "https://hm.baidu.com/hm.js?939ec0c46b2e18a32c44c37e5b49dc2d";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+  </script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-78433617-1"></script>
+  <script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-78433617-1');
+  </script>
+  <script data-ad-client="ca-pub-7969663237915266" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<link rel="alternate" href="/atom.xml" title="Gradatim's blog" type="application/atom+xml">
+</head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="true">
+  <input class="theme_preload_comment" value="false">
+  <input class="theme_blog_path" value="">
+</div>
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/" class="avatar_target">
+    <img class="avatar" src="/img/1460UaK0Z-15930.jpg" />
+</a>
+<div class="author">
+    <span>Bin</span>
+</div>
+
+<div class="icon">
+    
+        
+        <a title="rss" href="/atom.xml" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-rss"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="github" href="https://github.com/CoolView" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-github"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="email" href="mailto:bin07280@qq.com" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-email"></use>
+                </svg>
+            
+        </a>
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li><div class="all active">全部文章<small>(259)</small></div></li>
+    
+        
+            
+            <li><div data-rel="Android">Android<small>(11)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="Java">Java<small>(110)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="工具">工具<small>(11)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="前端">前端<small>(15)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="Linux">Linux<small>(4)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="Python">Python<small>(51)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="MongoDB">MongoDB<small>(16)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="数据库">数据库<small>(8)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="设计模式">设计模式<small>(25)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="数据结构">数据结构<small>(8)</small></div>
+                
+            </li>
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+    
+    
+    
+    
+    </div>
+    <div></div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="259">
+<input type="hidden" id="yelog_site_word_count" value="403.9k">
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="back-title-list"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <form onkeydown="if(event.keyCode==13){return false;}">
+        <input class="search" type="text" placeholder="以 in: 开头进行全文搜索" autocomplete="off"id="local-search-input" >
+        <i class="cross"></i>
+        <span>
+            <label for="tagswitch">Tags:</label>
+            <input id="tagswitch" type="checkbox" style="display: none" />
+            <i id="tagsWitchIcon"></i>
+        </span>
+    </form>
+    <div class="tags-list">
+    
+    <li class="article-tag-list-item">
+        <a class="color3">Android</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">Java</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">JUnit</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">IntelliJ</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">JavaScript</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">Python</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">Linux</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">MQTT</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">MongoDB</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">MyBatis</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">MySQL</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">Mybatis</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">Nginx</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">SQL</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">Spring</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">Tomcat</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">编码</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">Windows</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">VSCode</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">dos</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">jQuery</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">html</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">sublime</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">Effective Java</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">redis</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">log4j</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">设计模式</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">Java编程思想</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">数据结构</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">大话数据结构</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">第一行代码</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">Shiro</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">技巧</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">Hexo</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">Git</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">Quartz</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">支付宝</a>
+    </li>
+    
+    <div class="clearfix"></div>
+</div>
+
+    
+    <div id="local-search-result">
+
+    </div>
+    
+    <nav id="title-list-nav">
+        
+        <a  class="Java "
+           href="/2019/12/01/MyBatis%2010-%E7%BC%93%E5%AD%98%E9%85%8D%E7%BD%AE/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 10-缓存配置">MyBatis 10-缓存配置</span>
+            <span class="post-date" title="2019-12-01 15:53:26">2019/12/01</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/12/01/MyBatis%2009-%E4%BD%BF%E7%94%A8%E6%9E%9A%E4%B8%BE%E6%88%96%E5%85%B6%E4%BB%96%E5%AF%B9%E8%B1%A1/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 09-使用枚举或其他对象">MyBatis 09-使用枚举或其他对象</span>
+            <span class="post-date" title="2019-12-01 14:33:25">2019/12/01</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/12/01/MyBatis%2008-%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 08-存储过程">MyBatis 08-存储过程</span>
+            <span class="post-date" title="2019-12-01 13:54:52">2019/12/01</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/11/30/Java%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="《Java 开发手册》记录">《Java 开发手册》记录</span>
+            <span class="post-date" title="2019-11-30 16:55:52">2019/11/30</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/11/17/MyBatis%2007-%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 07-高级查询">MyBatis 07-高级查询</span>
+            <span class="post-date" title="2019-11-17 21:04:43">2019/11/17</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/11/17/MyBatis%2006-%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E5%99%A8/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 06-代码生成器">MyBatis 06-代码生成器</span>
+            <span class="post-date" title="2019-11-17 15:11:16">2019/11/17</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2019/10/11/aiohttp%20%E7%AE%80%E5%8D%95%E8%AE%B0%E5%BD%95/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="aiohttp 简单记录">aiohttp 简单记录</span>
+            <span class="post-date" title="2019-10-11 17:05:03">2019/10/11</span>
+        </a>
+        
+        <a  class="Linux "
+           href="/2019/10/11/Nginx%20%E8%AE%B0%E5%BD%95/"
+           data-tag="Nginx"
+           data-author="" >
+            <span class="post-title" title="Nginx 记录">Nginx 记录</span>
+            <span class="post-date" title="2019-10-11 15:46:01">2019/10/11</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/10/09/MyBatis%2005-%E5%8A%A8%E6%80%81%20SQL/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 05-动态 SQL">MyBatis 05-动态 SQL</span>
+            <span class="post-date" title="2019-10-09 21:19:25">2019/10/09</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/09/21/MyBatis%2004-%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 04-注解方式的基本用法">MyBatis 04-注解方式的基本用法</span>
+            <span class="post-date" title="2019-09-21 17:04:10">2019/09/21</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/09/21/MyBatis%2003-XML%20%E6%98%A0%E5%B0%84%E6%96%87%E4%BB%B6/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 03-XML 映射文件">MyBatis 03-XML 映射文件</span>
+            <span class="post-date" title="2019-09-21 14:32:21">2019/09/21</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/09/18/MyBatis%2002-XML%20%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 02-XML 配置文件">MyBatis 02-XML 配置文件</span>
+            <span class="post-date" title="2019-09-18 23:08:44">2019/09/18</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/09/18/MyBatis%2001-%E5%85%A5%E9%97%A8/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis 01-入门">MyBatis 01-入门</span>
+            <span class="post-date" title="2019-09-18 23:08:44">2019/09/18</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/08/26/Maven%20%E5%AD%A6%E4%B9%A0/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Maven 学习">Maven 学习</span>
+            <span class="post-date" title="2019-08-26 21:41:45">2019/08/26</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/08/10/%E3%80%8ASpring%20%E5%AE%9E%E6%88%98%E3%80%8B%E7%AC%94%E8%AE%B07%EF%BC%9ASpring%20MVC%20%E7%9A%84%E9%AB%98%E7%BA%A7%E6%8A%80%E6%9C%AF/"
+           data-tag="Spring"
+           data-author="" >
+            <span class="post-title" title="《Spring 实战》笔记7：Spring MVC 的高级技术">《Spring 实战》笔记7：Spring MVC 的高级技术</span>
+            <span class="post-date" title="2019-08-10 09:37:27">2019/08/10</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/08/06/%E3%80%8ASpring%20%E5%AE%9E%E6%88%98%E3%80%8B%E7%AC%94%E8%AE%B06%EF%BC%9A%E6%B8%B2%E6%9F%93%20Web%20%E8%A7%86%E5%9B%BE/"
+           data-tag="Spring"
+           data-author="" >
+            <span class="post-title" title="《Spring 实战》笔记6：渲染 Web 视图">《Spring 实战》笔记6：渲染 Web 视图</span>
+            <span class="post-date" title="2019-08-06 20:31:36">2019/08/06</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/07/13/%E3%80%8ASpring%20%E5%AE%9E%E6%88%98%E3%80%8B%E7%AC%94%E8%AE%B05%EF%BC%9A%E6%9E%84%E5%BB%BA%20Spring%20Web%20%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/"
+           data-tag="Spring"
+           data-author="" >
+            <span class="post-title" title="《Spring 实战》笔记5：构建 Spring Web 应用程序">《Spring 实战》笔记5：构建 Spring Web 应用程序</span>
+            <span class="post-date" title="2019-07-13 16:35:24">2019/07/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/07/04/%E3%80%8ASpring%20%E5%AE%9E%E6%88%98%E3%80%8B%E7%AC%94%E8%AE%B04%EF%BC%9A%E9%9D%A2%E5%90%91%E5%88%87%E9%9D%A2%E7%9A%84%20Spring/"
+           data-tag="Spring"
+           data-author="" >
+            <span class="post-title" title="《Spring 实战》笔记4：面向切面的 Spring">《Spring 实战》笔记4：面向切面的 Spring</span>
+            <span class="post-date" title="2019-07-04 20:09:37">2019/07/04</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/07/02/%E3%80%8ASpring%20%E5%AE%9E%E6%88%98%E3%80%8B%E7%AC%94%E8%AE%B03%EF%BC%9A%E9%AB%98%E7%BA%A7%E8%A3%85%E9%85%8D2/"
+           data-tag="Spring"
+           data-author="" >
+            <span class="post-title" title="《Spring 实战》笔记3：高级装配2">《Spring 实战》笔记3：高级装配2</span>
+            <span class="post-date" title="2019-07-02 22:13:00">2019/07/02</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/20/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B057-65%EF%BC%9A%E5%BC%82%E5%B8%B8/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记57-65：异常">《Effective Java》笔记57-65：异常</span>
+            <span class="post-date" title="2019-06-20 22:06:00">2019/06/20</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/19/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B045-56%EF%BC%9A%E9%80%9A%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记45-56：通用程序设计">《Effective Java》笔记45-56：通用程序设计</span>
+            <span class="post-date" title="2019-06-19 21:15:22">2019/06/19</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/17/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B009%EF%BC%9A%E4%BD%BF%E7%94%A8%20try-with-resources%20%E8%AF%AD%E5%8F%A5%E6%9B%BF%E4%BB%A3%20try-finally%20%E8%AF%AD%E5%8F%A5/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记09：使用 try-with-resources 语句替代 try-finally 语句">《Effective Java》笔记09：使用 try-with-resources 语句替代 try-finally 语句</span>
+            <span class="post-date" title="2019-06-17 14:39:14">2019/06/17</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/16/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B038-44%EF%BC%9A%E6%96%B9%E6%B3%95/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记38-44：方法">《Effective Java》笔记38-44：方法</span>
+            <span class="post-date" title="2019-06-16 18:57:28">2019/06/16</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/16/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B035-37%EF%BC%9A%E6%B3%A8%E8%A7%A3/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记35-37：注解">《Effective Java》笔记35-37：注解</span>
+            <span class="post-date" title="2019-06-16 15:47:16">2019/06/16</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/14/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B005%EF%BC%9A%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%BC%98%E4%BA%8E%E7%A1%AC%E8%BF%9E%E6%8E%A5%E8%B5%84%E6%BA%90(hardwiring%20resources)/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记05：依赖注入优于硬连接资源（hardwiring resources）">《Effective Java》笔记05：依赖注入优于硬连接资源（hardwiring resources）</span>
+            <span class="post-date" title="2019-06-14 15:20:06">2019/06/14</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/12/Tomcat%20%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/"
+           data-tag="Tomcat"
+           data-author="" >
+            <span class="post-title" title="Tomcat 问题记录">Tomcat 问题记录</span>
+            <span class="post-date" title="2019-06-12 15:41:06">2019/06/12</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/12/Tomcat%20%E4%BC%9A%E8%AF%9D%E6%8C%81%E4%B9%85%E5%8C%96%E9%85%8D%E7%BD%AE/"
+           data-tag="Tomcat"
+           data-author="" >
+            <span class="post-title" title="Tomcat 会话持久化配置">Tomcat 会话持久化配置</span>
+            <span class="post-date" title="2019-06-12 14:51:25">2019/06/12</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/06/11/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B030-34%EF%BC%9A%E6%9E%9A%E4%B8%BE/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记30-34：枚举">《Effective Java》笔记30-34：枚举</span>
+            <span class="post-date" title="2019-06-11 22:50:03">2019/06/11</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/05/29/MyBatis%20MySQL%20Druid%20%E6%89%B9%E9%87%8F%E6%9B%B4%E6%96%B0/"
+           data-tag="Java,MyBatis"
+           data-author="" >
+            <span class="post-title" title="MyBatis MySQL Druid 批量更新">MyBatis MySQL Druid 批量更新</span>
+            <span class="post-date" title="2019-05-29 10:38:01">2019/05/29</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2019/05/28/MongoDB%20%E7%94%A8%E6%88%B7%E3%80%81%E8%A7%92%E8%89%B2%E5%92%8C%E8%AE%A4%E8%AF%81/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB 用户、角色和认证">MongoDB 用户、角色和认证</span>
+            <span class="post-date" title="2019-05-28 13:56:42">2019/05/28</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2019/05/28/MongoDB%20%20%E5%AF%BC%E5%87%BA%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB 导出查询结果">MongoDB 导出查询结果</span>
+            <span class="post-date" title="2019-05-28 11:20:21">2019/05/28</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/05/27/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B023-29%EF%BC%9A%E6%B3%9B%E5%9E%8B/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记23-29：泛型">《Effective Java》笔记23-29：泛型</span>
+            <span class="post-date" title="2019-05-27 20:26:41">2019/05/27</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2019/05/27/Python%20%E8%BD%AC%E6%8D%A2%E6%96%87%E4%BB%B6%E7%BC%96%E7%A0%81%E6%A0%BC%E5%BC%8F/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 转换文件编码格式">Python 转换文件编码格式</span>
+            <span class="post-date" title="2019-05-27 17:14:17">2019/05/27</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/04/24/%E3%80%8ASpring%20%E5%AE%9E%E6%88%98%E3%80%8B%E7%AC%94%E8%AE%B03%EF%BC%9A%E9%AB%98%E7%BA%A7%E8%A3%85%E9%85%8D1/"
+           data-tag="Spring"
+           data-author="" >
+            <span class="post-title" title="《Spring 实战》笔记3：高级装配1">《Spring 实战》笔记3：高级装配1</span>
+            <span class="post-date" title="2019-04-24 21:14:22">2019/04/24</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/04/20/%E3%80%8ASpring%20%E5%AE%9E%E6%88%98%E3%80%8B%E7%AC%94%E8%AE%B02%EF%BC%9A%E8%A3%9D%E9%85%8D%20Bean/"
+           data-tag="Java,Spring"
+           data-author="" >
+            <span class="post-title" title="《Spring 实战》笔记2：裝配 Bean">《Spring 实战》笔记2：裝配 Bean</span>
+            <span class="post-date" title="2019-04-20 21:14:22">2019/04/20</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/04/13/%E3%80%8ASpring%20%E5%AE%9E%E6%88%98%E3%80%8B%E7%AC%94%E8%AE%B01%EF%BC%9ASpring%20%E4%B9%8B%E6%97%85/"
+           data-tag="Java,Spring"
+           data-author="" >
+            <span class="post-title" title="《Spring 实战》笔记1：Spring 之旅">《Spring 实战》笔记1：Spring 之旅</span>
+            <span class="post-date" title="2019-04-13 21:14:22">2019/04/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(10)%20StringJoiner/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(10) StringJoiner">Java 8新特性(10) StringJoiner</span>
+            <span class="post-date" title="2019-03-13 21:29:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(9)%20%E9%87%8D%E5%A4%8D%E6%B3%A8%E8%A7%A3/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(9) 重复注解">Java 8新特性(9) 重复注解</span>
+            <span class="post-date" title="2019-03-13 21:19:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(8)%20Base64/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(8) Base64">Java 8新特性(8) Base64</span>
+            <span class="post-date" title="2019-03-13 21:18:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(7)%20%E6%97%B6%E9%97%B4%E6%97%A5%E6%9C%9FAPI/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(7) 时间日期API">Java 8新特性(7) 时间日期API</span>
+            <span class="post-date" title="2019-03-13 21:17:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(6)%20Map%20%E6%96%B0%E5%A2%9E%E6%96%B9%E6%B3%95/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(6) Map 新增方法">Java 8新特性(6) Map 新增方法</span>
+            <span class="post-date" title="2019-03-13 21:16:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(5)%20Parallel%20Streams/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(5) Parallel Streams">Java 8新特性(5) Parallel Streams</span>
+            <span class="post-date" title="2019-03-13 21:15:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(4)%20Stream/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(4) Stream">Java 8新特性(4) Stream</span>
+            <span class="post-date" title="2019-03-13 21:14:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(3)%20%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(3) 内置函数式接口">Java 8新特性(3) 内置函数式接口</span>
+            <span class="post-date" title="2019-03-13 21:08:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(2)%20Lambda%20%E8%A1%A8%E8%BE%BE%E5%BC%8F/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(2) Lambda 表达式">Java 8新特性(2) Lambda 表达式</span>
+            <span class="post-date" title="2019-03-13 21:07:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2019/03/13/Java%208%E6%96%B0%E7%89%B9%E6%80%A7(1)%20%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%BB%98%E8%AE%A4%E6%96%B9%E6%B3%95/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 8新特性(1) 函数式接口与默认方法">Java 8新特性(1) 函数式接口与默认方法</span>
+            <span class="post-date" title="2019-03-13 21:06:22">2019/03/13</span>
+        </a>
+        
+        <a  class="Linux "
+           href="/2019/03/11/Ubuntu%20%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6/"
+           data-tag="Linux"
+           data-author="" >
+            <span class="post-title" title="Ubuntu 常用软件">Ubuntu 常用软件</span>
+            <span class="post-date" title="2019-03-11 21:06:22">2019/03/11</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2019/03/11/Windows%20%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB%E4%B8%8D%E5%90%8C%E7%BD%91%E6%AE%B5%E4%B9%8B%E9%97%B4%E8%AE%BF%E9%97%AE%E8%AE%BE%E7%BD%AE/"
+           data-tag="Windows"
+           data-author="" >
+            <span class="post-title" title="Windows 文件共享不同网段之间访问设置">Windows 文件共享不同网段之间访问设置</span>
+            <span class="post-date" title="2019-03-11 19:06:22">2019/03/11</span>
+        </a>
+        
+        <a  class="Linux "
+           href="/2019/03/11/Ubuntu%20%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/"
+           data-tag="Linux"
+           data-author="" >
+            <span class="post-title" title="Ubuntu 使用技巧">Ubuntu 使用技巧</span>
+            <span class="post-date" title="2019-03-11 18:06:22">2019/03/11</span>
+        </a>
+        
+        <a  class="Linux "
+           href="/2019/03/11/Linux%20%E4%B8%8B%E6%9F%A5%E7%9C%8B%E5%92%8C%E6%B7%BB%E5%8A%A0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/"
+           data-tag="Linux"
+           data-author="" >
+            <span class="post-title" title="Linux 下查看和添加环境变量">Linux 下查看和添加环境变量</span>
+            <span class="post-date" title="2019-03-11 16:06:22">2019/03/11</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2019/01/26/Python%20filecmp%20%E6%96%87%E4%BB%B6%E5%92%8C%E7%9B%AE%E5%BD%95%E6%AF%94%E8%BE%83/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python filecmp 文件和目录比较">Python filecmp 文件和目录比较</span>
+            <span class="post-date" title="2019-01-26 14:03:29">2019/01/26</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2019/01/26/Python%20APScheduler%20%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E5%88%A9%E5%99%A8/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python APScheduler 任务调度利器">Python APScheduler 任务调度利器</span>
+            <span class="post-date" title="2019-01-26 13:59:52">2019/01/26</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2019/01/25/Python%20Set/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python Set">Python Set</span>
+            <span class="post-date" title="2019-01-25 15:38:06">2019/01/25</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2019/01/17/Python%20datetime%20%E6%A8%A1%E5%9D%97/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python datetime 模块">Python datetime 模块</span>
+            <span class="post-date" title="2019-01-17 16:43:21">2019/01/17</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2019/01/17/PyCharm%20%E4%BD%BF%E7%94%A8/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="PyCharm 使用">PyCharm 使用</span>
+            <span class="post-date" title="2019-01-17 15:44:16">2019/01/17</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2019/01/02/Python%20SQL%20%E8%AF%AD%E5%8F%A5%20%E6%8B%BC%E6%8E%A5%20in%20%E6%9F%A5%E8%AF%A2/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python SQL 语句 拼接 in 查询">Python SQL 语句 拼接 in 查询</span>
+            <span class="post-date" title="2019-01-02 17:49:32">2019/01/02</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/12/31/Python%20%E4%BD%BF%E7%94%A8%20psutil%20%E8%8E%B7%E5%8F%96%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 使用 psutil 获取系统信息">Python 使用 psutil 获取系统信息</span>
+            <span class="post-date" title="2018-12-31 15:57:22">2018/12/31</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/12/31/Python%20%E5%B8%B8%E8%A7%81%E9%99%B7%E9%98%B1/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 常见陷阱">Python 常见陷阱</span>
+            <span class="post-date" title="2018-12-31 13:59:52">2018/12/31</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/12/28/Python%20Pipenv%20%E4%BD%BF%E7%94%A8/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python Pipenv 使用">Python Pipenv 使用</span>
+            <span class="post-date" title="2018-12-28 13:59:52">2018/12/28</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/12/26/Python%20pip%20%E4%BD%BF%E7%94%A8/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python pip 使用">Python pip 使用</span>
+            <span class="post-date" title="2018-12-26 13:59:52">2018/12/26</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/12/06/PyCharm%20%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="PyCharm 使用技巧">PyCharm 使用技巧</span>
+            <span class="post-date" title="2018-12-06 16:06:22">2018/12/06</span>
+        </a>
+        
+        <a  class="数据库 "
+           href="/2018/11/13/MySQL%20%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/"
+           data-tag="MySQL"
+           data-author="" >
+            <span class="post-title" title="MySQL 字符串操作">MySQL 字符串操作</span>
+            <span class="post-date" title="2018-11-13 21:06:22">2018/11/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/10/12/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B018-22%EF%BC%9A%E7%B1%BB%E5%92%8C%E6%8E%A5%E5%8F%A3/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记18-22：类和接口">《Effective Java》笔记18-22：类和接口</span>
+            <span class="post-date" title="2018-10-12 21:06:22">2018/10/12</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/10/11/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B017%EF%BC%9A%E8%A6%81%E4%B9%88%E4%B8%BA%E7%BB%A7%E6%89%BF%E8%80%8C%E8%AE%BE%E8%AE%A1%EF%BC%8C%E5%B9%B6%E6%8F%90%E4%BE%9B%E6%96%87%E6%A1%A3%E8%AF%B4%E6%98%8E%EF%BC%8C%E8%A6%81%E4%B9%88%E5%B0%B1%E7%A6%81%E6%AD%A2%E7%BB%A7%E6%89%BF/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记17：要么为继承而设计，并提供文档说明，要么就禁止继承">《Effective Java》笔记17：要么为继承而设计，并提供文档说明，要么就禁止继承</span>
+            <span class="post-date" title="2018-10-11 21:06:22">2018/10/11</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/10/11/Python%20time%20%E6%A8%A1%E5%9D%97/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python time 模块">Python time 模块</span>
+            <span class="post-date" title="2018-10-11 16:41:44">2018/10/11</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/10/11/Python%20platform%20%E6%A8%A1%E5%9D%97%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E7%89%88%E6%9C%AC%E4%BF%A1%E6%81%AF/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python platform 模块查看系统版本信息">Python platform 模块查看系统版本信息</span>
+            <span class="post-date" title="2018-10-11 15:04:22">2018/10/11</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/10/10/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B016%EF%BC%9A%E5%A4%8D%E5%90%88%E4%BC%98%E5%85%88%E4%BA%8E%E7%BB%A7%E6%89%BF/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记16：复合优先于继承">《Effective Java》笔记16：复合优先于继承</span>
+            <span class="post-date" title="2018-10-10 21:06:22">2018/10/10</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/30/Python%20OS%20%E6%A8%A1%E5%9D%97%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E5%B8%B8%E8%A7%81%E6%93%8D%E4%BD%9C/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python OS 模块文件目录常见操作">Python OS 模块文件目录常见操作</span>
+            <span class="post-date" title="2018-09-30 16:06:22">2018/09/30</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/28/Python%20%E4%B8%AD%20ctypes%20%E7%9A%84%E4%BD%BF%E7%94%A8/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 中 ctypes 的使用">Python 中 ctypes 的使用</span>
+            <span class="post-date" title="2018-09-28 16:06:22">2018/09/28</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/26/Python%20%E8%B0%83%E7%94%A8%E6%B5%B7%E5%BA%B7%20SDK/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 调用海康 SDK">Python 调用海康 SDK</span>
+            <span class="post-date" title="2018-09-26 16:06:22">2018/09/26</span>
+        </a>
+        
+        <a  class="数据库 "
+           href="/2018/09/21/MySQL%20%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF/"
+           data-tag="MySQL"
+           data-author="" >
+            <span class="post-title" title="MySQL 常见错误">MySQL 常见错误</span>
+            <span class="post-date" title="2018-09-21 16:06:22">2018/09/21</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/20/Python%20%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E4%BA%8C%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 字符串与二进制转换">Python 字符串与二进制转换</span>
+            <span class="post-date" title="2018-09-20 16:06:22">2018/09/20</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/19/Python%20list%20%E5%B8%B8%E8%A7%81%E6%93%8D%E4%BD%9C/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python list 常见操作">Python list 常见操作</span>
+            <span class="post-date" title="2018-09-19 16:06:22">2018/09/19</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2018/09/17/sublime%20%E4%BD%BF%E7%94%A8/"
+           data-tag="sublime"
+           data-author="" >
+            <span class="post-title" title="sublime 使用">sublime 使用</span>
+            <span class="post-date" title="2018-09-17 16:06:22">2018/09/17</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/16/MQTT--Python%E8%BF%9B%E8%A1%8C%E5%8F%91%E5%B8%83%E3%80%81%E8%AE%A2%E9%98%85%E6%B5%8B%E8%AF%95/"
+           data-tag="Python,MQTT"
+           data-author="" >
+            <span class="post-title" title="MQTT--Python进行发布、订阅测试">MQTT--Python进行发布、订阅测试</span>
+            <span class="post-date" title="2018-09-16 16:06:22">2018/09/16</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/16/Python%20%E8%BF%90%E8%A1%8C%E6%97%B6%E9%9A%90%E8%97%8F%E7%AA%97%E5%8F%A3/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 运行时隐藏窗口">Python 运行时隐藏窗口</span>
+            <span class="post-date" title="2018-09-16 16:06:22">2018/09/16</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/15/Python%20%E8%8E%B7%E5%8F%96%E6%9C%AC%E6%9C%BA%20IP%20%E5%9C%B0%E5%9D%80/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 获取本机 IP 地址">Python 获取本机 IP 地址</span>
+            <span class="post-date" title="2018-09-15 16:06:22">2018/09/15</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/14/MQTT%20%E4%BB%8B%E7%BB%8D/"
+           data-tag="MQTT"
+           data-author="" >
+            <span class="post-title" title="MQTT 介绍">MQTT 介绍</span>
+            <span class="post-date" title="2018-09-14 16:06:22">2018/09/14</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2018/09/14/Windows%20%E5%B8%B8%E7%94%A8%20bat%20%E8%84%9A%E6%9C%AC/"
+           data-tag="dos"
+           data-author="" >
+            <span class="post-title" title="Windows 常用 bat 脚本">Windows 常用 bat 脚本</span>
+            <span class="post-date" title="2018-09-14 16:06:22">2018/09/14</span>
+        </a>
+        
+        <a  class="数据库 "
+           href="/2018/09/13/MySQL%20%E5%B8%B8%E7%94%A8%20SQL/"
+           data-tag="MySQL"
+           data-author="" >
+            <span class="post-title" title="MySQL 常用 SQL">MySQL 常用 SQL</span>
+            <span class="post-date" title="2018-09-13 16:06:22">2018/09/13</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/13/Python%20%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 常见错误">Python 常见错误</span>
+            <span class="post-date" title="2018-09-13 16:06:22">2018/09/13</span>
+        </a>
+        
+        <a  class="数据库 "
+           href="/2018/09/12/mysql%20any%20all%E6%93%8D%E4%BD%9C%E7%AC%A6/"
+           data-tag="MySQL"
+           data-author="" >
+            <span class="post-title" title="MySQL any all操作符">MySQL any all操作符</span>
+            <span class="post-date" title="2018-09-12 16:06:22">2018/09/12</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2018/09/09/IntelliJ%20IDEA%20%E5%BF%AB%E6%8D%B7%E9%94%AE/"
+           data-tag="IntelliJ"
+           data-author="" >
+            <span class="post-title" title="IntelliJ IDEA 快捷键">IntelliJ IDEA 快捷键</span>
+            <span class="post-date" title="2018-09-09 16:06:22">2018/09/09</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2018/09/06/IntelliJ%20IDEA%20%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/"
+           data-tag="IntelliJ"
+           data-author="" >
+            <span class="post-title" title="IntelliJ IDEA 使用记录">IntelliJ IDEA 使用记录</span>
+            <span class="post-date" title="2018-09-06 16:06:22">2018/09/06</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/06/Python%20%E6%93%8D%E4%BD%9CMySQL/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 操作 MySQL">Python 操作 MySQL</span>
+            <span class="post-date" title="2018-09-06 16:06:22">2018/09/06</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/05/%E7%90%86%E8%A7%A3%20Python%20%E7%9A%84%20With%20%E8%AF%AD%E5%8F%A5/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="理解 Python 的 With 语句">理解 Python 的 With 语句</span>
+            <span class="post-date" title="2018-09-05 16:06:22">2018/09/05</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/04/Python%20%E5%86%85%E7%BD%AE%E6%A8%A1%E5%9D%97%20enumerate/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 内置模块 enumerate">Python 内置模块 enumerate</span>
+            <span class="post-date" title="2018-09-04 16:06:22">2018/09/04</span>
+        </a>
+        
+        <a  class="数据库 "
+           href="/2018/09/03/Windows%20%E4%B8%8B%20MySQL%20%E5%85%8D%E5%AE%89%E8%A3%85%E7%89%88%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/"
+           data-tag="MySQL"
+           data-author="" >
+            <span class="post-title" title="Windows 下 MySQL 免安装版安装配置">Windows 下 MySQL 免安装版安装配置</span>
+            <span class="post-date" title="2018-09-03 16:06:22">2018/09/03</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/09/02/Python%20%E8%AF%BB%E5%8F%96%E5%86%99%E5%85%A5%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%20ConfigParser/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 读取写入配置文件 ConfigParser">Python 读取写入配置文件 ConfigParser</span>
+            <span class="post-date" title="2018-09-02 16:06:22">2018/09/02</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/08/25/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B015%EF%BC%9A%E4%BD%BF%E5%8F%AF%E5%8F%98%E6%80%A7%E6%9C%80%E5%B0%8F%E5%8C%96/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记15：使可变性最小化">《Effective Java》笔记15：使可变性最小化</span>
+            <span class="post-date" title="2018-08-25 16:06:22">2018/08/25</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/08/25/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B014%EF%BC%9A%E5%9C%A8%E5%85%AC%E6%9C%89%E7%B1%BB%E4%B8%AD%E4%BD%BF%E7%94%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95%E8%80%8C%E9%9D%9E%E5%85%AC%E6%9C%89%E5%9F%9F/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记14：在公有类中使用访问方法而非公有域">《Effective Java》笔记14：在公有类中使用访问方法而非公有域</span>
+            <span class="post-date" title="2018-08-25 14:06:22">2018/08/25</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/08/25/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B013%EF%BC%9A%E4%BD%BF%E7%B1%BB%E5%92%8C%E6%88%90%E5%91%98%E7%9A%84%E5%8F%AF%E8%AE%BF%E9%97%AE%E6%80%A7%E6%9C%80%E5%B0%8F%E5%8C%96/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记13：使类和成员的可访问性最小化">《Effective Java》笔记13：使类和成员的可访问性最小化</span>
+            <span class="post-date" title="2018-08-25 13:06:22">2018/08/25</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/08/09/Python%20%E5%AE%9A%E4%BD%8D%E7%A8%8B%E5%BA%8F%E6%80%A7%E8%83%BD%E7%93%B6%E9%A2%88/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 定位程序性能瓶颈">Python 定位程序性能瓶颈</span>
+            <span class="post-date" title="2018-08-09 22:57:22">2018/08/09</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/08/09/Python%20%E8%AF%BB%E5%86%99%E6%96%87%E4%BB%B6/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 读写文件">Python 读写文件</span>
+            <span class="post-date" title="2018-08-09 20:57:22">2018/08/09</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/08/09/PIL-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%952/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="PIL 基本用法2">PIL 基本用法2</span>
+            <span class="post-date" title="2018-08-09 17:57:22">2018/08/09</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/08/08/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B010-14%EF%BC%9A%E6%89%80%E6%9C%89%E5%AF%B9%E8%B1%A1%E7%9A%84%E9%80%9A%E7%94%A8%E6%96%B9%E6%B3%95/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记10-14：所有对象的通用方法">《Effective Java》笔记10-14：所有对象的通用方法</span>
+            <span class="post-date" title="2018-08-08 22:42:22">2018/08/08</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/08/07/Python%20random%20%E6%A8%A1%E5%9D%97/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python random 模块">Python random 模块</span>
+            <span class="post-date" title="2018-08-07 17:04:22">2018/08/07</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/06/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B025-%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记25-访问者模式">《Head First 设计模式》笔记25-访问者模式</span>
+            <span class="post-date" title="2018-08-06 20:15:17">2018/08/06</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/05/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B023-%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记23-原型模式">《Head First 设计模式》笔记23-原型模式</span>
+            <span class="post-date" title="2018-08-05 16:35:17">2018/08/05</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/05/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B022-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记22-备忘录模式">《Head First 设计模式》笔记22-备忘录模式</span>
+            <span class="post-date" title="2018-08-05 10:15:17">2018/08/05</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/04/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B021-%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记21-中介者模式">《Head First 设计模式》笔记21-中介者模式</span>
+            <span class="post-date" title="2018-08-04 23:17:57">2018/08/04</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/04/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B020-%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记20-解释器模式">《Head First 设计模式》笔记20-解释器模式</span>
+            <span class="post-date" title="2018-08-04 13:17:57">2018/08/04</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/02/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B019-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记19-享元模式">《Head First 设计模式》笔记19-享元模式</span>
+            <span class="post-date" title="2018-08-02 23:17:57">2018/08/02</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/02/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B018-%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记18-责任链模式">《Head First 设计模式》笔记18-责任链模式</span>
+            <span class="post-date" title="2018-08-02 13:17:57">2018/08/02</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/01/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B017-%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记17-建造者模式">《Head First 设计模式》笔记17-建造者模式</span>
+            <span class="post-date" title="2018-08-01 23:17:57">2018/08/01</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/08/01/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B016-%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记16-桥接模式">《Head First 设计模式》笔记16-桥接模式</span>
+            <span class="post-date" title="2018-08-01 13:17:57">2018/08/01</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/24/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B015-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记15-代理模式">《Head-First-设计模式》笔记15-代理模式</span>
+            <span class="post-date" title="2018-07-24 18:59:16">2018/07/24</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/15/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B014-%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记14-状态模式">《Head-First-设计模式》笔记14-状态模式</span>
+            <span class="post-date" title="2018-07-15 14:42:43">2018/07/15</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/15/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B013-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记13-组合模式">《Head-First-设计模式》笔记13-组合模式</span>
+            <span class="post-date" title="2018-07-15 10:17:34">2018/07/15</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/14/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B012-%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记12-迭代器模式">《Head-First-设计模式》笔记12-迭代器模式</span>
+            <span class="post-date" title="2018-07-14 22:07:15">2018/07/14</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/14/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B011-%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记11-模板方法模式">《Head-First-设计模式》笔记11-模板方法模式</span>
+            <span class="post-date" title="2018-07-14 15:43:30">2018/07/14</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/13/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B010-%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记10-外观模式">《Head-First-设计模式》笔记10-外观模式</span>
+            <span class="post-date" title="2018-07-13 22:01:55">2018/07/13</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/13/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B09-%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记9-适配器模式">《Head-First-设计模式》笔记9-适配器模式</span>
+            <span class="post-date" title="2018-07-13 22:01:44">2018/07/13</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/11/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B08-%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记8-命令模式">《Head-First-设计模式》笔记8-命令模式</span>
+            <span class="post-date" title="2018-07-11 20:18:55">2018/07/11</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/08/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B07-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记7-单例模式">《Head-First-设计模式》笔记7-单例模式</span>
+            <span class="post-date" title="2018-07-08 23:07:31">2018/07/08</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/08/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B06-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记6-抽象工厂模式">《Head-First-设计模式》笔记6-抽象工厂模式</span>
+            <span class="post-date" title="2018-07-08 22:31:27">2018/07/08</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/08/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B05-%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记5-工厂方法模式">《Head-First-设计模式》笔记5-工厂方法模式</span>
+            <span class="post-date" title="2018-07-08 21:43:14">2018/07/08</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/08/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B04-%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记4-简单工厂模式">《Head-First-设计模式》笔记4-简单工厂模式</span>
+            <span class="post-date" title="2018-07-08 21:01:16">2018/07/08</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/08/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B03-%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记3-装饰者模式">《Head-First-设计模式》笔记3-装饰者模式</span>
+            <span class="post-date" title="2018-07-08 13:12:23">2018/07/08</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/07/07/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B02-%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head-First-设计模式》笔记2-观察者模式">《Head-First-设计模式》笔记2-观察者模式</span>
+            <span class="post-date" title="2018-07-07 16:36:28">2018/07/07</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/06/25/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B01-%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记1-策略模式">《Head First 设计模式》笔记1-策略模式</span>
+            <span class="post-date" title="2018-06-25 23:38:06">2018/06/25</span>
+        </a>
+        
+        <a  class="设计模式 "
+           href="/2018/06/25/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B00-%E5%BC%95%E5%AD%90/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="《Head First 设计模式》笔记0-引子">《Head First 设计模式》笔记0-引子</span>
+            <span class="post-date" title="2018-06-25 23:17:57">2018/06/25</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/06/25/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B0%E7%9B%AE%E5%BD%95/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记目录">《Java编程思想》笔记目录</span>
+            <span class="post-date" title="2018-06-25 22:37:51">2018/06/25</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/06/24/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B020-%E6%B3%A8%E8%A7%A3/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记20-注解">《Java编程思想》笔记20-注解</span>
+            <span class="post-date" title="2018-06-24 16:48:03">2018/06/24</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/06/23/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B019-%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记19-枚举类型">《Java编程思想》笔记19-枚举类型</span>
+            <span class="post-date" title="2018-06-23 15:59:24">2018/06/23</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/06/16/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B018-Java-I-O%E7%B3%BB%E7%BB%9F/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记18-Java I/O系统">《Java编程思想》笔记18-Java I/O系统</span>
+            <span class="post-date" title="2018-06-16 20:32:01">2018/06/16</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/06/16/Mybatis%20foreach%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20Map/"
+           data-tag="Java,Mybatis"
+           data-author="" >
+            <span class="post-title" title="Mybatis foreach 中使用 Map">Mybatis foreach 中使用 Map</span>
+            <span class="post-date" title="2018-06-16 20:32:01">2018/06/16</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/06/06/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B017-%E5%AE%B9%E5%99%A8%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记17-容器深入研究">《Java编程思想》笔记17-容器深入研究</span>
+            <span class="post-date" title="2018-06-06 20:32:01">2018/06/06</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/05/29/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B016-%E6%95%B0%E7%BB%84/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记16-数组">《Java编程思想》笔记16-数组</span>
+            <span class="post-date" title="2018-05-29 21:01:02">2018/05/29</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/05/28/Python%20%E8%AF%86%E5%88%AB%E9%AA%8C%E8%AF%81%E7%A0%81/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 识别验证码‎">Python 识别验证码‎</span>
+            <span class="post-date" title="2018-05-28 14:17:55">2018/05/28</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/05/28/Selenium%E7%AE%80%E4%BB%8B/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Selenium 简介‎">Selenium 简介‎</span>
+            <span class="post-date" title="2018-05-28 13:17:55">2018/05/28</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/05/25/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B015-%E6%B3%9B%E5%9E%8B/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记15-泛型">《Java编程思想》笔记15-泛型</span>
+            <span class="post-date" title="2018-05-25 21:24:26">2018/05/25</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/05/18/Python%20AES%20%E5%8A%A0%E5%AF%86%20pycrypto%E2%80%8E/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python AES 加密 pycrypto‎">Python AES 加密 pycrypto‎</span>
+            <span class="post-date" title="2018-05-18 13:17:55">2018/05/18</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/05/08/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B014-%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记14-类型信息">《Java编程思想》笔记14-类型信息</span>
+            <span class="post-date" title="2018-05-08 21:47:45">2018/05/08</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/05/01/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B013-%E5%AD%97%E7%AC%A6%E4%B8%B2/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记13-字符串">《Java编程思想》笔记13-字符串</span>
+            <span class="post-date" title="2018-05-01 15:18:45">2018/05/01</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/28/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B024-%E5%9C%A8%E7%BA%BF%E4%BC%9A%E8%AF%9D%E7%AE%A1%E7%90%86/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记24-在线会话管理">《跟我学Shiro》笔记24-在线会话管理</span>
+            <span class="post-date" title="2018-04-28 20:12:22">2018/04/28</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/25/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B022-%E9%9B%86%E6%88%90%E9%AA%8C%E8%AF%81%E7%A0%81/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记22-集成验证码">《跟我学Shiro》笔记22-集成验证码</span>
+            <span class="post-date" title="2018-04-25 20:12:22">2018/04/25</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/21/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B018-%E5%B9%B6%E5%8F%91%E7%99%BB%E5%BD%95%E4%BA%BA%E6%95%B0%E6%8E%A7%E5%88%B6/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记18-并发登录人数控制">《跟我学Shiro》笔记18-并发登录人数控制</span>
+            <span class="post-date" title="2018-04-21 20:12:22">2018/04/21</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/20/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B015-%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记15-单点登录">《跟我学Shiro》笔记15-单点登录</span>
+            <span class="post-date" title="2018-04-20 20:12:22">2018/04/20</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/19/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B014-SSL/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记14-SSL">《跟我学Shiro》笔记14-SSL</span>
+            <span class="post-date" title="2018-04-19 20:12:22">2018/04/19</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/19/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B013-RememberMe/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记13-RememberMe">《跟我学Shiro》笔记13-RememberMe</span>
+            <span class="post-date" title="2018-04-19 10:12:22">2018/04/19</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/18/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B012-%E4%B8%8ESpring%E9%9B%86%E6%88%90/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记12-与Spring集成">《跟我学Shiro》笔记12-与Spring集成</span>
+            <span class="post-date" title="2018-04-18 10:12:22">2018/04/18</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/17/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B011-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记11-缓存机制">《跟我学Shiro》笔记11-缓存机制</span>
+            <span class="post-date" title="2018-04-17 20:12:22">2018/04/17</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/17/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B010-%E4%BC%9A%E8%AF%9D%E7%AE%A1%E7%90%86/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记10-会话管理">《跟我学Shiro》笔记10-会话管理</span>
+            <span class="post-date" title="2018-04-17 10:12:22">2018/04/17</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/16/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B009-JSP%E6%A0%87%E7%AD%BE/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记09-JSP标签">《跟我学Shiro》笔记09-JSP标签</span>
+            <span class="post-date" title="2018-04-16 10:12:22">2018/04/16</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/15/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B008-%E6%8B%A6%E6%88%AA%E5%99%A8%E6%9C%BA%E5%88%B6/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记08-拦截器机制">《跟我学Shiro》笔记08-拦截器机制</span>
+            <span class="post-date" title="2018-04-15 15:12:22">2018/04/15</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/14/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B007-%E4%B8%8EWeb%E9%9B%86%E6%88%90/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记07-与Web集成">《跟我学Shiro》笔记07-与Web集成</span>
+            <span class="post-date" title="2018-04-14 20:12:22">2018/04/14</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/13/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B006-Realm%E5%8F%8A%E7%9B%B8%E5%85%B3%E5%AF%B9%E8%B1%A1/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记06-Realm及相关对象">《跟我学Shiro》笔记06-Realm及相关对象</span>
+            <span class="post-date" title="2018-04-13 20:12:22">2018/04/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/12/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B005-%E7%BC%96%E7%A0%81%E5%8A%A0%E5%AF%86/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记05-编码加密">《跟我学Shiro》笔记05-编码加密</span>
+            <span class="post-date" title="2018-04-12 20:12:22">2018/04/12</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/11/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B004-INI%E9%85%8D%E7%BD%AE/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记04-INI配置">《跟我学Shiro》笔记04-INI配置</span>
+            <span class="post-date" title="2018-04-11 20:12:22">2018/04/11</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/10/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B003-%E6%8E%88%E6%9D%83/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记03-授权">《跟我学Shiro》笔记03-授权</span>
+            <span class="post-date" title="2018-04-10 20:12:22">2018/04/10</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/09/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B002-%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记02-身份验证">《跟我学Shiro》笔记02-身份验证</span>
+            <span class="post-date" title="2018-04-09 21:12:22">2018/04/09</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/09/%E3%80%8A%E8%B7%9F%E6%88%91%E5%AD%A6Shiro%E3%80%8B%E7%AC%94%E8%AE%B001-Shiro%E7%AE%80%E4%BB%8B/"
+           data-tag="Java,Shiro"
+           data-author="" >
+            <span class="post-title" title="《跟我学Shiro》笔记01-Shiro简介">《跟我学Shiro》笔记01-Shiro简介</span>
+            <span class="post-date" title="2018-04-09 20:12:22">2018/04/09</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/01/SpringMVC%20Test/"
+           data-tag="Java,JUnit,Spring"
+           data-author="" >
+            <span class="post-title" title="SpringMVC Test">SpringMVC Test</span>
+            <span class="post-date" title="2018-04-01 21:41:33">2018/04/01</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/04/01/Spring%20Test%20%E6%95%B4%E5%90%88JUnit%204/"
+           data-tag="Java,JUnit,Spring"
+           data-author="" >
+            <span class="post-title" title="Spring Test 整合JUnit 4">Spring Test 整合JUnit 4</span>
+            <span class="post-date" title="2018-04-01 15:41:33">2018/04/01</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/31/JUnit%204%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%8B%EF%BC%89/"
+           data-tag="Java,JUnit"
+           data-author="" >
+            <span class="post-title" title="JUnit 4学习笔记（下）">JUnit 4学习笔记（下）</span>
+            <span class="post-date" title="2018-03-31 21:41:33">2018/03/31</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/31/JUnit%204%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%8A%EF%BC%89/"
+           data-tag="Java,JUnit"
+           data-author="" >
+            <span class="post-title" title="JUnit 4学习笔记（上）">JUnit 4学习笔记（上）</span>
+            <span class="post-date" title="2018-03-31 20:38:01">2018/03/31</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/28/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B012-%E9%80%9A%E8%BF%87%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E9%94%99%E8%AF%AF/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记12-通过异常处理错误">《Java编程思想》笔记12-通过异常处理错误</span>
+            <span class="post-date" title="2018-03-28 21:18:45">2018/03/28</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/28/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B011-%E6%8C%81%E6%9C%89%E5%AF%B9%E8%B1%A1/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记11-持有对象">《Java编程思想》笔记11-持有对象</span>
+            <span class="post-date" title="2018-03-28 21:18:08">2018/03/28</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/28/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B010-%E5%86%85%E9%83%A8%E7%B1%BB/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记10-内部类">《Java编程思想》笔记10-内部类</span>
+            <span class="post-date" title="2018-03-28 21:12:22">2018/03/28</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/27/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B009-%E6%8E%A5%E5%8F%A3/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记09-接口">《Java编程思想》笔记09-接口</span>
+            <span class="post-date" title="2018-03-27 22:48:51">2018/03/27</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/27/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B008-%E5%A4%9A%E6%80%81/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记08-多态">《Java编程思想》笔记08-多态</span>
+            <span class="post-date" title="2018-03-27 20:38:01">2018/03/27</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/19/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B007-%E5%A4%8D%E7%94%A8%E7%B1%BB/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记07-复用类">《Java编程思想》笔记07-复用类</span>
+            <span class="post-date" title="2018-03-19 22:25:43">2018/03/19</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/19/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B006-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记06-访问权限控制">《Java编程思想》笔记06-访问权限控制</span>
+            <span class="post-date" title="2018-03-19 22:18:17">2018/03/19</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/19/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B005-%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E6%B8%85%E7%90%86/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记05-初始化与清理">《Java编程思想》笔记05-初始化与清理</span>
+            <span class="post-date" title="2018-03-19 21:03:58">2018/03/19</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/19/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B004-%E6%8E%A7%E5%88%B6%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记04-控制执行流程">《Java编程思想》笔记04-控制执行流程</span>
+            <span class="post-date" title="2018-03-19 20:53:00">2018/03/19</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/19/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B003-%E6%93%8D%E4%BD%9C%E7%AC%A6/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记03-操作符">《Java编程思想》笔记03-操作符</span>
+            <span class="post-date" title="2018-03-19 20:18:13">2018/03/19</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2018/03/18/Beautiful-Soup-%E5%AD%A6%E4%B9%A0/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Beautiful Soup4 学习">Beautiful Soup4 学习</span>
+            <span class="post-date" title="2018-03-18 18:13:41">2018/03/18</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2018/03/18/VSCode%20%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/"
+           data-tag="VSCode"
+           data-author="" >
+            <span class="post-title" title="VSCode 使用">VSCode 使用</span>
+            <span class="post-date" title="2018-03-18 15:13:34">2018/03/18</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/17/Java%20%E5%A4%A7%E6%95%B0%E6%93%8D%E4%BD%9C%EF%BC%88BigInteger%EF%BC%8CBigDecimal%EF%BC%89/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java大数操作（BigInteger，BigDecimal）">Java大数操作（BigInteger，BigDecimal）</span>
+            <span class="post-date" title="2018-03-17 15:26:57">2018/03/17</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/15/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B002-%E4%B8%80%E5%88%87%E9%83%BD%E6%98%AF%E5%AF%B9%E8%B1%A1/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记02-一切都是对象">《Java编程思想》笔记02-一切都是对象</span>
+            <span class="post-date" title="2018-03-15 21:24:48">2018/03/15</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/13/%E3%80%8AJava%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E3%80%8B%E7%AC%94%E8%AE%B001-%E5%AF%B9%E8%B1%A1%E5%AF%BC%E8%AE%BA/"
+           data-tag="Java,Java编程思想"
+           data-author="" >
+            <span class="post-title" title="《Java编程思想》笔记01-对象导论">《Java编程思想》笔记01-对象导论</span>
+            <span class="post-date" title="2018-03-13 21:19:08">2018/03/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/03/10/Java%20%E5%A4%8D%E5%88%B6%E6%96%87%E4%BB%B6%E7%9A%84%E6%96%B9%E6%B3%95/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="Java 复制文件的方法">Java 复制文件的方法</span>
+            <span class="post-date" title="2018-03-10 16:07:14">2018/03/10</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2018/03/07/MongoDB%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%95%B0%E5%80%BC%E6%AF%94%E8%BE%83/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB字符串数值比较">MongoDB字符串数值比较</span>
+            <span class="post-date" title="2018-03-07 15:21:38">2018/03/07</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2018/03/03/%E5%88%A0%E9%99%A4%E5%8F%B3%E9%94%AE%20%E4%B8%8A%E4%BC%A0%E5%88%B0%E6%9C%89%E9%81%93%E4%BA%91/"
+           data-tag="技巧"
+           data-author="" >
+            <span class="post-title" title="删除右键中的“上传到有道云”">删除右键中的“上传到有道云”</span>
+            <span class="post-date" title="2018-03-03 16:07:14">2018/03/03</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2018/02/27/Spring%E4%BA%8B%E5%8A%A1%E9%85%8D%E7%BD%AE%E5%88%87%E7%82%B9/"
+           data-tag="Java,Spring"
+           data-author="" >
+            <span class="post-title" title="Spring事务配置切点">Spring事务配置切点</span>
+            <span class="post-date" title="2018-02-27 15:21:38">2018/02/27</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/12/17/%E4%BD%BF%E7%94%A8%E9%98%BF%E9%87%8C%E4%BA%91-pip-%E6%BA%90/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="使用阿里云 pip 源">使用阿里云 pip 源</span>
+            <span class="post-date" title="2017-12-17 22:30:45">2017/12/17</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/12/17/Python%E4%BD%BF%E7%94%A8requests%E6%99%82%E9%81%87%E5%88%B0Failed-to-establish-a-new-connection/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python使用requests时遇到Failed to establish a new connection">Python使用requests时遇到Failed to establish a new connection</span>
+            <span class="post-date" title="2017-12-17 22:12:07">2017/12/17</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/12/17/Python-%E8%A7%A3%E6%9E%90-JSON/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="Python 解析 JSON">Python 解析 JSON</span>
+            <span class="post-date" title="2017-12-17 22:03:27">2017/12/17</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/12/17/PIL-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="PIL 基本用法">PIL 基本用法</span>
+            <span class="post-date" title="2017-12-17 17:57:22">2017/12/17</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2017/12/17/CentOS%E4%B8%8B%E5%AE%89%E8%A3%85JDK/"
+           data-tag="Java"
+           data-author="" >
+            <span class="post-title" title="CentOS 下安装 JDK">CentOS 下安装 JDK</span>
+            <span class="post-date" title="2017-12-17 15:19:51">2017/12/17</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2017/12/17/Git-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"
+           data-tag="Git"
+           data-author="" >
+            <span class="post-title" title="Git 学习笔记">Git 学习笔记</span>
+            <span class="post-date" title="2017-12-17 15:19:51">2017/12/17</span>
+        </a>
+        
+        <a  class="数据结构 "
+           href="/2017/12/09/%E3%80%8A%E5%A4%A7%E8%AF%9D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%8B%E7%AC%94%E8%AE%B008-%E4%BA%8C%E5%8F%89%E6%A0%912/"
+           data-tag="数据结构,大话数据结构"
+           data-author="" >
+            <span class="post-title" title="《大话数据结构》笔记08-二叉树&lt;下篇&gt;">《大话数据结构》笔记08-二叉树&lt;下篇&gt;</span>
+            <span class="post-date" title="2017-12-09 21:34:34">2017/12/09</span>
+        </a>
+        
+        <a  class="数据结构 "
+           href="/2017/11/09/%E3%80%8A%E5%A4%A7%E8%AF%9D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%8B%E7%AC%94%E8%AE%B007-%E4%BA%8C%E5%8F%89%E6%A0%91/"
+           data-tag="数据结构,大话数据结构"
+           data-author="" >
+            <span class="post-title" title="《大话数据结构》笔记07-二叉树&lt;上篇&gt;">《大话数据结构》笔记07-二叉树&lt;上篇&gt;</span>
+            <span class="post-date" title="2017-11-09 21:34:34">2017/11/09</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2017/10/13/JavaScript%E5%AE%9E%E7%8E%B0%E5%A4%8D%E5%88%B6%E5%88%B0%E5%89%AA%E8%B4%B4%E6%9D%BF%E5%8A%9F%E8%83%BD/"
+           data-tag="JavaScript"
+           data-author="" >
+            <span class="post-title" title="JavaScript实现复制到剪贴板功能">JavaScript实现复制到剪贴板功能</span>
+            <span class="post-date" title="2017-10-13 14:49:58">2017/10/13</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2017/10/01/jQuery%E6%93%8D%E4%BD%9Cselect%E7%9A%84%E6%96%B9%E6%B3%95/"
+           data-tag="JavaScript,jQuery"
+           data-author="" >
+            <span class="post-title" title="jQuery操作select的方法">jQuery操作select的方法</span>
+            <span class="post-date" title="2017-10-01 21:49:58">2017/10/01</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2017/10/01/jQuery%E6%93%8D%E4%BD%9Ccheckbox%E7%9A%84%E6%96%B9%E6%B3%95/"
+           data-tag="JavaScript,jQuery"
+           data-author="" >
+            <span class="post-title" title="jQuery操作checkbox的方法">jQuery操作checkbox的方法</span>
+            <span class="post-date" title="2017-10-01 12:28:31">2017/10/01</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2017/09/28/jQuery%E6%93%8D%E4%BD%9Cradio%E7%9A%84%E6%96%B9%E6%B3%95/"
+           data-tag="JavaScript,jQuery"
+           data-author="" >
+            <span class="post-title" title="jQuery操作radio的方法">jQuery操作radio的方法</span>
+            <span class="post-date" title="2017-09-28 15:44:05">2017/09/28</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2017/09/13/Hexo%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/"
+           data-tag="Hexo"
+           data-author="" >
+            <span class="post-title" title="Hexo使用记录">Hexo使用记录</span>
+            <span class="post-date" title="2017-09-13 16:07:14">2017/09/13</span>
+        </a>
+        
+        <a  class="数据结构 "
+           href="/2017/09/09/%E3%80%8A%E5%A4%A7%E8%AF%9D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%8B%E7%AC%94%E8%AE%B006-%E6%A0%91/"
+           data-tag="数据结构,大话数据结构"
+           data-author="" >
+            <span class="post-title" title="《大话数据结构》笔记06-树">《大话数据结构》笔记06-树</span>
+            <span class="post-date" title="2017-09-09 21:34:34">2017/09/09</span>
+        </a>
+        
+        <a  class="数据结构 "
+           href="/2017/09/09/%E3%80%8A%E5%A4%A7%E8%AF%9D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%8B%E7%AC%94%E8%AE%B005-%E4%B8%B2/"
+           data-tag="数据结构,大话数据结构"
+           data-author="" >
+            <span class="post-title" title="《大话数据结构》笔记05-串">《大话数据结构》笔记05-串</span>
+            <span class="post-date" title="2017-09-09 21:06:25">2017/09/09</span>
+        </a>
+        
+        <a  class="数据结构 "
+           href="/2017/09/09/%E3%80%8A%E5%A4%A7%E8%AF%9D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%8B%E7%AC%94%E8%AE%B004-%E6%A0%88%E4%B8%8E%E9%98%9F%E5%88%97/"
+           data-tag="数据结构,大话数据结构"
+           data-author="" >
+            <span class="post-title" title="《大话数据结构》笔记04-栈与队列">《大话数据结构》笔记04-栈与队列</span>
+            <span class="post-date" title="2017-09-09 20:50:06">2017/09/09</span>
+        </a>
+        
+        <a  class="数据结构 "
+           href="/2017/09/04/%E3%80%8A%E5%A4%A7%E8%AF%9D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%8B%E7%AC%94%E8%AE%B003-%E7%BA%BF%E6%80%A7%E8%A1%A8/"
+           data-tag="数据结构,大话数据结构"
+           data-author="" >
+            <span class="post-title" title="《大话数据结构》笔记03-线性表">《大话数据结构》笔记03-线性表</span>
+            <span class="post-date" title="2017-09-04 21:58:20">2017/09/04</span>
+        </a>
+        
+        <a  class="数据结构 "
+           href="/2017/09/04/%E3%80%8A%E5%A4%A7%E8%AF%9D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%8B%E7%AC%94%E8%AE%B002-%E7%AE%97%E6%B3%95/"
+           data-tag="数据结构,大话数据结构"
+           data-author="" >
+            <span class="post-title" title="《大话数据结构》笔记02-算法">《大话数据结构》笔记02-算法</span>
+            <span class="post-date" title="2017-09-04 21:33:31">2017/09/04</span>
+        </a>
+        
+        <a  class="数据结构 "
+           href="/2017/09/04/%E3%80%8A%E5%A4%A7%E8%AF%9D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%8B%E7%AC%94%E8%AE%B001-%E7%BB%AA%E8%AE%BA/"
+           data-tag="数据结构,大话数据结构"
+           data-author="" >
+            <span class="post-title" title="《大话数据结构》笔记01-绪论">《大话数据结构》笔记01-绪论</span>
+            <span class="post-date" title="2017-09-04 21:06:05">2017/09/04</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2017/08/05/SpringMVC-MongoDB%E6%95%B4%E5%90%88%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/"
+           data-tag="Java,MongoDB,Spring"
+           data-author="" >
+            <span class="post-title" title="SpringMVC MongoDB整合中遇到的问题">SpringMVC MongoDB整合中遇到的问题</span>
+            <span class="post-date" title="2017-08-05 07:54:05">2017/08/05</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B013-MongoDB%E5%A4%87%E4%BB%BD/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记13-MongoDB备份">MongoDB学习笔记13-MongoDB备份</span>
+            <span class="post-date" title="2017-07-17 23:21:37">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B012-MongoDB%E8%81%9A%E5%90%88/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记12-MongoDB聚合">MongoDB学习笔记12-MongoDB聚合</span>
+            <span class="post-date" title="2017-07-17 22:21:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B011-MongoDB%E7%B4%A2%E5%BC%95/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记11-MongoDB索引">MongoDB学习笔记11-MongoDB索引</span>
+            <span class="post-date" title="2017-07-17 21:21:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B010-MongoDB%E5%88%86%E9%A1%B5%E3%80%81%E6%8E%92%E5%BA%8F%E4%B8%8E%E6%B8%B8%E6%A0%87/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记10-MongoDB分页、排序与游标">MongoDB学习笔记10-MongoDB分页、排序与游标</span>
+            <span class="post-date" title="2017-07-17 20:21:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B009-MongoDB%E5%9C%A8Shell%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%9F%A5%E8%AF%A2/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记09-MongoDB在Shell中执行查询">MongoDB学习笔记09-MongoDB在Shell中执行查询</span>
+            <span class="post-date" title="2017-07-17 19:21:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B008-MongoDB%E5%9C%A8Shell%E4%B8%AD%E6%89%A7%E8%A1%8C%E5%88%A0%E9%99%A4/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记08-MongoDB在Shell中执行删除">MongoDB学习笔记08-MongoDB在Shell中执行删除</span>
+            <span class="post-date" title="2017-07-17 18:21:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B007-MongoDB%E5%9C%A8Shell%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%9B%B4%E6%96%B0/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记07-MongoDB在Shell中执行更新">MongoDB学习笔记07-MongoDB在Shell中执行更新</span>
+            <span class="post-date" title="2017-07-17 17:21:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B006-MongoDB%E5%9C%A8Shell%E4%B8%AD%E6%89%A7%E8%A1%8C%E5%A2%9E/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记06-MongoDB在Shell中执行增">MongoDB学习笔记06-MongoDB在Shell中执行增</span>
+            <span class="post-date" title="2017-07-17 16:21:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B005-Shell%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记05-Shell常用命令">MongoDB学习笔记05-Shell常用命令</span>
+            <span class="post-date" title="2017-07-17 15:21:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B004-MySQL%20MongoDB%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E5%AF%B9%E6%AF%94/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记04-MySQL MongoDB 常用命令对比">MongoDB学习笔记04-MySQL MongoDB 常用命令对比</span>
+            <span class="post-date" title="2017-07-17 14:51:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B003-MongoDB%20%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%8C%E5%AF%B9%E8%B1%A1%EF%BC%8C%E9%9B%86%E5%90%88/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记03-MongoDB 数据库，对象，集合">MongoDB学习笔记03-MongoDB 数据库，对象，集合</span>
+            <span class="post-date" title="2017-07-17 14:41:38">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B002-MongoDB%E7%AE%80%E4%BB%8B%E5%8F%8A%E5%AE%89%E8%A3%85/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记02-MongoDB简介及安装">MongoDB学习笔记02-MongoDB简介及安装</span>
+            <span class="post-date" title="2017-07-17 14:31:32">2017/07/17</span>
+        </a>
+        
+        <a  class="MongoDB "
+           href="/2017/07/17/MongoDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001-NoSQL/"
+           data-tag="MongoDB"
+           data-author="" >
+            <span class="post-title" title="MongoDB学习笔记01-NoSQL">MongoDB学习笔记01-NoSQL</span>
+            <span class="post-date" title="2017-07-17 14:21:31">2017/07/17</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2017/05/27/%E6%94%AF%E4%BB%98%E5%AE%9DAPP%E6%94%AF%E4%BB%98%E6%8E%A5%E5%8F%A3-Java%E6%9C%8D%E5%8A%A1%E7%AB%AF/"
+           data-tag="Java,支付宝"
+           data-author="" >
+            <span class="post-title" title="支付宝APP支付接口-Java服务端">支付宝APP支付接口-Java服务端</span>
+            <span class="post-date" title="2017-05-27 22:28:27">2017/05/27</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2017/01/01/Jython%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8/"
+           data-tag="Java,Python"
+           data-author="" >
+            <span class="post-title" title="Jython安装及使用">Jython安装及使用</span>
+            <span class="post-date" title="2017-01-01 22:53:15">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B010-%E6%A8%A1%E5%9D%97%EF%BC%8C%E6%A0%87%E5%87%86%E5%BA%93/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记10-模块，标准库">《Python基础教程》读书笔记10-模块，标准库</span>
+            <span class="post-date" title="2017-01-01 22:41:44">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B009-%E9%AD%94%E6%B3%95%E6%96%B9%E6%B3%95%E3%80%81%E5%B1%9E%E6%80%A7%E5%92%8C%E8%BF%AD%E4%BB%A3%E5%99%A8/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记09-魔法方法、属性和迭代器">《Python基础教程》读书笔记09-魔法方法、属性和迭代器</span>
+            <span class="post-date" title="2017-01-01 22:39:34">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B008-%E5%BC%82%E5%B8%B8/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记08-异常">《Python基础教程》读书笔记08-异常</span>
+            <span class="post-date" title="2017-01-01 22:38:13">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B007-%E6%9B%B4%E5%8A%A0%E6%8A%BD%E8%B1%A1/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记07-更加抽象">《Python基础教程》读书笔记07-更加抽象</span>
+            <span class="post-date" title="2017-01-01 22:34:51">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B006-%E6%8A%BD%E8%B1%A1/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记06-抽象">《Python基础教程》读书笔记06-抽象</span>
+            <span class="post-date" title="2017-01-01 22:30:32">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B005-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E8%BF%9B%E9%98%B6/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记05-基础知识进阶">《Python基础教程》读书笔记05-基础知识进阶</span>
+            <span class="post-date" title="2017-01-01 17:17:55">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B004-%E5%AD%97%E5%85%B8/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记04-字典">《Python基础教程》读书笔记04-字典</span>
+            <span class="post-date" title="2017-01-01 17:15:28">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B003-%E5%AD%97%E7%AC%A6%E4%B8%B2/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记03-字符串">《Python基础教程》读书笔记03-字符串</span>
+            <span class="post-date" title="2017-01-01 16:51:21">2017/01/01</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2017/01/01/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B002-%E5%88%97%E8%A1%A8%E5%92%8C%E5%85%83%E7%BB%84/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记02-列表和元组">《Python基础教程》读书笔记02-列表和元组</span>
+            <span class="post-date" title="2017-01-01 16:25:22">2017/01/01</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/11/06/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B008%EF%BC%9A%E9%81%BF%E5%85%8D%E4%BD%BF%E7%94%A8%20Finalizer%20%E5%92%8C%20Cleaner%20%E6%9C%BA%E5%88%B6/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记08：避免使用 Finalizer 和 Cleaner 机制">《Effective Java》笔记08：避免使用 Finalizer 和 Cleaner 机制</span>
+            <span class="post-date" title="2016-11-06 23:39:33">2016/11/06</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/11/04/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B007%EF%BC%9A%E6%B6%88%E9%99%A4%E8%BF%87%E6%9C%9F%E7%9A%84%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记07：消除过期的对象引用">《Effective Java》笔记07：消除过期的对象引用</span>
+            <span class="post-date" title="2016-11-04 15:28:51">2016/11/04</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/10/30/JavaScript%E5%AE%9E%E7%8E%B0%E9%99%90%E5%88%B6%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E7%9A%84%E5%A4%A7%E5%B0%8F/"
+           data-tag="JavaScript"
+           data-author="" >
+            <span class="post-title" title="JavaScript实现限制上传文件的大小">JavaScript实现限制上传文件的大小</span>
+            <span class="post-date" title="2016-10-30 23:21:58">2016/10/30</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/10/30/Prettify-js%E4%BD%BF%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE/"
+           data-tag="JavaScript"
+           data-author="" >
+            <span class="post-title" title="Prettify.js使代码高亮">Prettify.js使代码高亮</span>
+            <span class="post-date" title="2016-10-30 21:56:42">2016/10/30</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/10/30/JavaScript%E5%88%A4%E6%96%AD%E6%B5%8F%E8%A7%88%E5%99%A8%E7%B1%BB%E5%9E%8B%E5%8F%8A%E7%89%88%E6%9C%AC/"
+           data-tag="JavaScript"
+           data-author="" >
+            <span class="post-title" title="JavaScript判断浏览器类型及版本">JavaScript判断浏览器类型及版本</span>
+            <span class="post-date" title="2016-10-30 21:06:57">2016/10/30</span>
+        </a>
+        
+        <a  class="Python "
+           href="/2016/07/19/%E3%80%8APython%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B001-%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/"
+           data-tag="Python"
+           data-author="" >
+            <span class="post-title" title="《Python基础教程》读书笔记01-基础知识">《Python基础教程》读书笔记01-基础知识</span>
+            <span class="post-date" title="2016-07-19 19:18:10">2016/07/19</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/05/27/UTF-8%E7%BC%96%E7%A0%81%E8%A7%84%E5%88%99/"
+           data-tag="Java,编码"
+           data-author="" >
+            <span class="post-title" title="UTF-8编码规则,及对包含汉字的字符串截取指定字节数">UTF-8编码规则,及对包含汉字的字符串截取指定字节数</span>
+            <span class="post-date" title="2016-05-27 14:26:33">2016/05/27</span>
+        </a>
+        
+        <a  class="数据库 "
+           href="/2016/05/26/java-sql-SQLException-Incorrect-string-value-xF0-x9F-x91-xBD-xF0-x9F%E2%80%A6/"
+           data-tag="Java,MySQL"
+           data-author="" >
+            <span class="post-title" title="java.sql.SQLException: Incorrect string value: &#39;\xF0\x9F\x91\xBD\xF0\x9F…&#39;">java.sql.SQLException: Incorrect string value: &#39;\xF0\x9F\x91\xBD\xF0\x9F…&#39;</span>
+            <span class="post-date" title="2016-05-26 21:52:11">2016/05/26</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/18/%E3%80%8A%E7%AC%AC%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%AC%AC%E4%B8%89%E7%AB%A001-%E5%B8%B8%E8%A7%81%E6%8E%A7%E4%BB%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/"
+           data-tag="Android,第一行代码"
+           data-author="" >
+            <span class="post-title" title="《第一行代码》读书笔记-第三章01 常见控件的使用方法">《第一行代码》读书笔记-第三章01 常见控件的使用方法</span>
+            <span class="post-date" title="2016-05-18 14:39:21">2016/05/18</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/18/%E3%80%8A%E7%AC%AC%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%AC%AC%E4%BA%8C%E7%AB%A005-%E6%B4%BB%E5%8A%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"
+           data-tag="Android,第一行代码"
+           data-author="" >
+            <span class="post-title" title="《第一行代码》读书笔记-第二章05 活动的最佳实践">《第一行代码》读书笔记-第二章05 活动的最佳实践</span>
+            <span class="post-date" title="2016-05-18 13:31:49">2016/05/18</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/18/ADB%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/"
+           data-tag="Android"
+           data-author="" >
+            <span class="post-title" title="ADB常用命令">ADB常用命令</span>
+            <span class="post-date" title="2016-05-18 12:45:45">2016/05/18</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/17/Android%E4%BB%BB%E5%8A%A1%E5%92%8C%E8%BF%94%E5%9B%9E%E6%A0%88%E5%AE%8C%E5%85%A8%E8%A7%A3%E6%9E%90%EF%BC%8C%E7%BB%86%E6%95%B0%E9%82%A3%E4%BA%9B%E4%BD%A0%E6%89%80%E4%B8%8D%E7%9F%A5%E9%81%93%E7%9A%84%E7%BB%86%E8%8A%82/"
+           data-tag="Android"
+           data-author="" >
+            <span class="post-title" title="Android任务和返回栈完全解析，细数那些你所不知道的细节">Android任务和返回栈完全解析，细数那些你所不知道的细节</span>
+            <span class="post-date" title="2016-05-17 16:43:50">2016/05/17</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/14/%E3%80%8A%E7%AC%AC%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%AC%AC%E4%BA%8C%E7%AB%A004-%E6%B4%BB%E5%8A%A8%E7%9A%84%E5%90%AF%E5%8A%A8%E6%A8%A1%E5%BC%8F/"
+           data-tag="Android,第一行代码"
+           data-author="" >
+            <span class="post-title" title="《第一行代码》读书笔记-第二章04 活动的启动模式">《第一行代码》读书笔记-第二章04 活动的启动模式</span>
+            <span class="post-date" title="2016-05-14 13:25:01">2016/05/14</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/14/Parcelable%E6%8E%A5%E5%8F%A3%E7%9A%84%E4%BD%BF%E7%94%A8/"
+           data-tag="Android"
+           data-author="" >
+            <span class="post-title" title="Parcelable接口的使用">Parcelable接口的使用</span>
+            <span class="post-date" title="2016-05-14 09:49:24">2016/05/14</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/12/%E3%80%8A%E7%AC%AC%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%AC%AC%E4%BA%8C%E7%AB%A003-%E6%B4%BB%E5%8A%A8%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/"
+           data-tag="Android,第一行代码"
+           data-author="" >
+            <span class="post-title" title="《第一行代码》读书笔记-第二章03 活动的生命周期">《第一行代码》读书笔记-第二章03 活动的生命周期</span>
+            <span class="post-date" title="2016-05-12 17:09:54">2016/05/12</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/12/%E3%80%8A%E7%AC%AC%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%AC%AC%E4%BA%8C%E7%AB%A002-%E4%BD%BF%E7%94%A8Intent%E5%9C%A8%E6%B4%BB%E5%8A%A8%E4%B9%8B%E9%97%B4%E7%A9%BF%E6%A2%AD/"
+           data-tag="Android,第一行代码"
+           data-author="" >
+            <span class="post-title" title="《第一行代码》读书笔记-第二章02 使用Intent在活动之间穿梭">《第一行代码》读书笔记-第二章02 使用Intent在活动之间穿梭</span>
+            <span class="post-date" title="2016-05-12 11:00:18">2016/05/12</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/11/%E3%80%8A%E7%AC%AC%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%AC%AC%E4%BA%8C%E7%AB%A001%20%E6%B4%BB%E5%8A%A8%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/"
+           data-tag="Android,第一行代码"
+           data-author="" >
+            <span class="post-title" title="《第一行代码》读书笔记-第二章01 活动的基本用法">《第一行代码》读书笔记-第二章01 活动的基本用法</span>
+            <span class="post-date" title="2016-05-11 15:49:08">2016/05/11</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/05/11/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B006%EF%BC%9A%E9%81%BF%E5%85%8D%E5%88%9B%E5%BB%BA%E4%B8%8D%E5%BF%85%E8%A6%81%E7%9A%84%E5%AF%B9%E8%B1%A1/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记06：避免创建不必要的对象">《Effective Java》笔记06：避免创建不必要的对象</span>
+            <span class="post-date" title="2016-05-11 14:25:57">2016/05/11</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/09/%E3%80%8A%E7%AC%AC%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%AC%AC%E4%B8%80%E7%AB%A0-%E5%BC%80%E5%90%AF%E5%90%AF%E7%A8%8B%EF%BC%8C%E4%BD%A0%E7%9A%84%E7%AC%AC%E4%B8%80%E8%A1%8C%E4%BB%A3%E7%A0%81/"
+           data-tag="Android,第一行代码"
+           data-author="" >
+            <span class="post-title" title="《第一行代码》读书笔记-第一章 开启启程，你的第一行代码">《第一行代码》读书笔记-第一章 开启启程，你的第一行代码</span>
+            <span class="post-date" title="2016-05-09 09:37:30">2016/05/09</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/05/06/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B004%EF%BC%9A%E9%80%9A%E8%BF%87%E7%A7%81%E6%9C%89%E6%9E%84%E9%80%A0%E5%99%A8%E5%BC%BA%E5%8C%96%E4%B8%8D%E5%8F%AF%E5%AE%9E%E4%BE%8B%E5%8C%96%E7%9A%84%E8%83%BD%E5%8A%9B/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记04：通过私有构造器强化不可实例化的能力">《Effective Java》笔记04：通过私有构造器强化不可实例化的能力</span>
+            <span class="post-date" title="2016-05-06 17:00:28">2016/05/06</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/05/06/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B003%EF%BC%9A%E7%94%A8%E7%A7%81%E6%9C%89%E6%9E%84%E9%80%A0%E5%99%A8%E6%88%96%E8%80%85%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E5%BC%BA%E5%8C%96Singleton%E5%B1%9E%E6%80%A7/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记03：用私有构造器或者枚举类型强化Singleton属性">《Effective Java》笔记03：用私有构造器或者枚举类型强化Singleton属性</span>
+            <span class="post-date" title="2016-05-06 14:52:19">2016/05/06</span>
+        </a>
+        
+        <a  class="Android "
+           href="/2016/05/04/AndroidAnnotations%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001-AndroidStudio%E9%85%8D%E7%BD%AE/"
+           data-tag="Android"
+           data-author="" >
+            <span class="post-title" title="AndroidAnnotations - AndroidStudio配置">AndroidAnnotations - AndroidStudio配置</span>
+            <span class="post-date" title="2016-05-04 16:50:40">2016/05/04</span>
+        </a>
+        
+        <a  class="数据库 "
+           href="/2016/05/03/redis%E5%AF%86%E7%A0%81%E7%AE%A1%E7%90%86/"
+           data-tag="redis"
+           data-author="" >
+            <span class="post-title" title="redis密码管理">redis密码管理</span>
+            <span class="post-date" title="2016-05-03 16:42:45">2016/05/03</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/04/28/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B002%EF%BC%9A%E9%81%87%E5%88%B0%E5%A4%9A%E4%B8%AA%E6%9E%84%E9%80%A0%E5%99%A8%E5%8F%82%E6%95%B0%E6%97%B6%E8%A6%81%E8%80%83%E8%99%91%E7%94%A8%E6%9E%84%E5%BB%BA%E5%99%A8/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记02：遇到多个构造器参数时要考虑用构建器 Builder">《Effective Java》笔记02：遇到多个构造器参数时要考虑用构建器 Builder</span>
+            <span class="post-date" title="2016-04-28 16:27:44">2016/04/28</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/04/28/%E3%80%8AEffective%20Java%E3%80%8B%E7%AC%94%E8%AE%B001%EF%BC%9A%E8%80%83%E8%99%91%E7%94%A8%E9%9D%99%E6%80%81%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%9B%BF%E4%BB%A3%E6%9E%84%E9%80%A0%E5%99%A8/"
+           data-tag="Java,Effective Java"
+           data-author="" >
+            <span class="post-title" title="《Effective Java》笔记01：考虑用静态工厂方法替代构造器">《Effective Java》笔记01：考虑用静态工厂方法替代构造器</span>
+            <span class="post-date" title="2016-04-28 10:28:20">2016/04/28</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/04/26/jQuery-each-%E6%96%B9%E6%B3%95/"
+           data-tag="JavaScript,jQuery"
+           data-author="" >
+            <span class="post-title" title="jQuery each()方法">jQuery each()方法</span>
+            <span class="post-date" title="2016-04-26 14:39:48">2016/04/26</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/04/26/jQuery%20text()%EF%BC%8CparseHTML()%20%E6%96%B9%E6%B3%95/"
+           data-tag="JavaScript,jQuery"
+           data-author="" >
+            <span class="post-title" title="jQuery text()，parseHTML() 方法">jQuery text()，parseHTML() 方法</span>
+            <span class="post-date" title="2016-04-26 10:24:18">2016/04/26</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/04/13/log4j%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/"
+           data-tag="Java,log4j"
+           data-author="" >
+            <span class="post-title" title="log4j使用笔记">log4j使用笔记</span>
+            <span class="post-date" title="2016-04-13 22:44:43">2016/04/13</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/04/12/%E5%B0%86System-out%E8%BE%93%E5%87%BA%E5%88%B0log4j/"
+           data-tag="Java,log4j"
+           data-author="" >
+            <span class="post-title" title="将System.out输出到log4j">将System.out输出到log4j</span>
+            <span class="post-date" title="2016-04-12 17:24:51">2016/04/12</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2016/03/30/%E6%89%B9%E5%A4%84%E7%90%86%E5%B8%B8%E7%94%A8%E7%89%B9%E6%AE%8A%E7%AC%A6%E5%8F%B7/"
+           data-tag="dos"
+           data-author="" >
+            <span class="post-title" title="批处理常用特殊符号">批处理常用特殊符号</span>
+            <span class="post-date" title="2016-03-30 20:28:26">2016/03/30</span>
+        </a>
+        
+        <a  class="工具 "
+           href="/2016/03/28/%E6%89%B9%E5%A4%84%E7%90%86%E5%90%8C%E6%97%B6%E8%BF%90%E8%A1%8C%E5%A4%9A%E4%B8%AA%E7%A8%8B%E5%BA%8F/"
+           data-tag="dos"
+           data-author="" >
+            <span class="post-title" title="批处理同时运行多个程序">批处理同时运行多个程序</span>
+            <span class="post-date" title="2016-03-28 21:07:22">2016/03/28</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/03/17/JavaScript%E4%B8%ADWindow%E5%AF%B9%E8%B1%A1/"
+           data-tag="JavaScript"
+           data-author="" >
+            <span class="post-title" title="JavaScript中Window对象">JavaScript中Window对象</span>
+            <span class="post-date" title="2016-03-17 15:46:28">2016/03/17</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/03/16/js%E6%93%8D%E4%BD%9Cframeset/"
+           data-tag="JavaScript,html"
+           data-author="" >
+            <span class="post-title" title="js框架间的互相引用">js框架间的互相引用</span>
+            <span class="post-date" title="2016-03-16 16:55:35">2016/03/16</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/03/16/%E5%9C%A8frameset%EF%BC%8Cframe%EF%BC%8Ciframe%E4%B8%AD%E5%A6%82%E4%BD%95%E6%93%8D%E4%BD%9C%E5%85%B6%E4%BB%96%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E5%88%B7%E6%96%B0%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84%E9%A1%B5%E9%9D%A2/"
+           data-tag="JavaScript,html"
+           data-author="" >
+            <span class="post-title" title="在frameset，frame，iframe中如何操作其他框架中的页面以及如何刷新框架中的页面">在frameset，frame，iframe中如何操作其他框架中的页面以及如何刷新框架中的页面</span>
+            <span class="post-date" title="2016-03-16 15:46:59">2016/03/16</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/03/16/JavaScript%E5%88%A4%E6%96%AD%E5%8F%98%E9%87%8F%E6%98%AF%E5%90%A6%E4%B8%BAundefined%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%B7%AE%E5%BC%82/"
+           data-tag="JavaScript"
+           data-author="" >
+            <span class="post-title" title="JavaScript判断变量是否为undefined两种方式差异">JavaScript判断变量是否为undefined两种方式差异</span>
+            <span class="post-date" title="2016-03-16 13:54:56">2016/03/16</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/03/16/%E5%9B%BE%E6%A0%87%E9%97%AA%E5%8A%A8%E6%8F%90%E9%86%92%EF%BC%8C%E5%B9%B6%E5%8A%A0%E8%BD%BD%E5%86%85%E5%AE%B9%E5%88%B0%E5%BC%B9%E5%87%BA%E6%A1%86Jquery%E6%8F%92%E4%BB%B6/"
+           data-tag="JavaScript,jQuery"
+           data-author="" >
+            <span class="post-title" title="图标闪动提醒，并加载内容到弹出框jQuery插件">图标闪动提醒，并加载内容到弹出框jQuery插件</span>
+            <span class="post-date" title="2016-03-16 10:17:53">2016/03/16</span>
+        </a>
+        
+        <a  class="Java "
+           href="/2016/03/10/Spring-3%E6%95%B4%E5%90%88Quartz%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/"
+           data-tag="Java,Spring,Quartz"
+           data-author="" >
+            <span class="post-title" title="Spring 3整合Quartz实现定时任务">Spring 3整合Quartz实现定时任务</span>
+            <span class="post-date" title="2016-03-10 23:05:05">2016/03/10</span>
+        </a>
+        
+        <a  class="数据库 "
+           href="/2016/03/08/SQL-%E4%B8%80%E4%B8%AA%E5%88%86%E7%BB%84%E5%8F%96%E6%9C%80%E5%A4%A7%E5%80%BC%E5%B9%B6%E4%B8%94%E5%8E%BB%E9%87%8D/"
+           data-tag="SQL"
+           data-author="" >
+            <span class="post-title" title="SQL:一个分组取最大值并且去重">SQL:一个分组取最大值并且去重</span>
+            <span class="post-date" title="2016-03-08 23:08:46">2016/03/08</span>
+        </a>
+        
+        <a  class="前端 "
+           href="/2016/03/02/jQuery%E5%85%A8%E9%80%89%E5%8F%8D%E9%80%89/"
+           data-tag="JavaScript,jQuery"
+           data-author="" >
+            <span class="post-title" title="jQuery全选反选">jQuery全选反选</span>
+            <span class="post-date" title="2016-03-02 11:33:00">2016/03/02</span>
+        </a>
+        
+    </nav>
+</div>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div class="post">
+    <div class="pjax">
+        <article id="post-《Head-First-设计模式》笔记18-责任链模式" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">《Head First 设计模式》笔记18-责任链模式</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            
+                <a  data-rel="设计模式">设计模式</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a class="color5">设计模式</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+        创建时间:<time class="date" title='更新时间: 2019-08-06 00:07:35'>2018-08-02 13:17</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        <span>字数:740</span>
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读:<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+        <span class="top-comment" title="跳转至评论区">
+            <a href="#comments">
+                评论:<span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </a>
+        </span>
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#定义"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#如何使用责任链模式"><span class="toc-text">如何使用责任链模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#示例代码"><span class="toc-text">示例代码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#优缺点"><span class="toc-text">优缺点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#模式适用场景"><span class="toc-text">模式适用场景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h1><p>责任链模式(ChainOfResponsibility)： 有多个对象，每个对象持有下一个对象的引用，形成一条链，请求在这条链上传递，直到某一对象决定处理该请求，但是发出者并不清楚最终哪个对象会处理该请求。</p>
+<p>当你想要让一个以上的对象有机会能够处理某个请求的时候，就使用责任链模式。又称职责链。</p>
+<a id="more"></a>
+
+<h1 id="如何使用责任链模式"><a href="#如何使用责任链模式" class="headerlink" title="如何使用责任链模式"></a>如何使用责任链模式</h1><p>责任链包含三个角色：</p>
+<ul>
+<li>Handler: 抽象处理者。定义了一个处理请求的方法。所有的处理者都必须实现该抽象类。</li>
+<li>ConcreteHandler: 具体处理者。处理它所负责的请求，同时也可以访问它的后继者。如果它能够处理该请求则处理，否则将请求传递到它的后继者。</li>
+<li>Client: 客户类。</li>
+</ul>
+<p><img src="https://blog-1252208501.cos.ap-beijing.myqcloud.com/20180805145837.png" alt=""></p>
+<h1 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h1><p>Handler: 抽象处理者。</p>
+<pre><code class="java">public abstract class Chain {
+    public static int One = 1;
+    public static int Two = 2;
+    public static int Three = 3;
+    protected int Threshold;
+
+    protected Chain next;
+
+    public void setNext(Chain chain) {
+        next = chain;
+    }
+
+    public void message(String msg, int priority) {
+        // 如果优先级小于阈值则处理
+        if (priority &lt;= Threshold) {
+            writeMessage(msg);
+        }
+
+        if (next != null) {
+            next.message(msg, priority);
+        }
+    }
+
+    abstract protected void writeMessage(String msg);
+}</code></pre>
+<p>具体处理者</p>
+<pre><code class="java">public class A extends Chain {
+    public A(int threshold) {
+        this.Threshold = threshold;
+    }
+
+    protected void writeMessage(String msg) {
+        System.out.println(&quot;A: &quot; + msg);
+    }
+}
+
+public class B extends Chain {
+    public B(int threshold) {
+        this.Threshold = threshold;
+    }
+
+    protected void writeMessage(String msg) {
+        System.out.println(&quot;B: &quot; + msg);
+    }
+}
+
+public class C extends Chain {
+    public C(int threshold) {
+        this.Threshold = threshold;
+    }
+
+    protected void writeMessage(String msg) {
+        System.out.println(&quot;C: &quot; + msg);
+    }
+}</code></pre>
+<p>测试，Client</p>
+<pre><code class="java">public class Example {
+    private static Chain createChain() {
+        // 建立责任链
+        Chain chain1 = new A(Chain.Three);
+
+        Chain chain2 = new B(Chain.Two);
+        chain1.setNext(chain2);
+
+        Chain chain3 = new C(Chain.One);
+        chain2.setNext(chain3);
+
+        return chain1;
+    }
+
+    public static void main(String[] args) {
+
+        Chain chain = createChain();
+
+        chain.message(&quot;level 3&quot;, Chain.Three);
+
+        chain.message(&quot;level 2&quot;, Chain.Two);
+
+        chain.message(&quot;level 1&quot;, Chain.One);
+    }
+}</code></pre>
+<p>打印结果</p>
+<pre><code class="shell">A: level 3
+A: level 2
+B: level 2
+A: level 1
+B: level 1
+C: level 1</code></pre>
+<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>优点</p>
+<ol>
+<li><p>降低耦合度。它将请求的发送者和接受者解耦。</p>
+</li>
+<li><p>简化了对象。使得对象不需要知道链的结构。</p>
+</li>
+<li><p>增强给对象指派职责的灵活性。通过改变链内的成员或者调动它们的次序，允许动态地新增或者删除责任。</p>
+</li>
+<li><p>增加新的请求处理类很方便。</p>
+</li>
+</ol>
+<p>缺点</p>
+<ol>
+<li><p>不能保证请求一定被接收。</p>
+</li>
+<li><p>系统性能将受到一定影响，而且在进行代码调试时不太方便；可能会造成循环调用。</p>
+</li>
+<li><p>可能不容易观察运行时的特征，有碍于除错。</p>
+</li>
+</ol>
+<h1 id="模式适用场景"><a href="#模式适用场景" class="headerlink" title="模式适用场景"></a>模式适用场景</h1><ol>
+<li>有多个对象可以处理同一个请求，具体哪个对象处理该请求由运行时刻自动确定。</li>
+<li>在不明确指定接收者的情况下，向多个对象中的一个提交一个请求。</li>
+<li>可动态指定一组对象处理请求。</li>
+</ol>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><blockquote>
+<p><a href="https://blog.csdn.net/chenssy/article/details/11881377" target="_blank" rel="noopener">https://blog.csdn.net/chenssy/article/details/11881377</a><br><a href="https://www.programcreek.com/2013/02/java-design-pattern-chain-of-responsibility" target="_blank" rel="noopener">https://www.programcreek.com/2013/02/java-design-pattern-chain-of-responsibility</a></p>
+</blockquote>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 bin07280@qq.com </span>
+    </div>
+</article>
+
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>《Head First 设计模式》笔记18-责任链模式</p>
+    <p><span class="copy-title">文章字数:</span><span class="post-count">740</span></p>
+    <p><span class="copy-title">本文作者:</span><a  title="Bin">Bin</a></p>
+    <p><span class="copy-title">发布时间:</span>2018-08-02, 13:17:57</p>
+    <p><span class="copy-title">最后更新:</span>2019-08-06, 00:07:35</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2018/08/02/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B018-%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/" title="《Head First 设计模式》笔记18-责任链模式">http://coolview.github.io/2018/08/02/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B018-%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+    <section id="comments" class="disqus">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'http://coolview.github.io/2018/08/02/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B018-%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/';
+            this.page.identifier = '2018/08/02/《Head-First-设计模式》笔记18-责任链模式/';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//coolview.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <aside class="comment-bar">
+        <a>
+            <i class="fa fa-commenting-o animated infinite pulse"></i>
+            <i class="fa fa-spinner fa-pulse"></i>
+            <span class="count-comment"></span>
+        </a>
+    </aside>
+    <script>
+        var isLoadComments = false;
+        var $commentBar = $("#comments aside.comment-bar");
+        var load$hide = function(){
+            if(isLoadComments){
+                return;
+            }
+            isLoadComments = true;
+            if(isLoadComments )
+            $commentBar.find("a > i").toggle();
+            loadComment();
+            $commentBar.fadeOut(800);
+        }
+        $commentBar.click(function(){
+            load$hide();
+        })
+        $commentBar.children("a").mouseenter(function(){
+            load$hide();
+        })
+    </script>
+
+
+</section>
+
+<!-- Add comment count-->
+<span class="disqus-comment-count" style="display: none" data-disqus-identifier="2018/08/02/《Head-First-设计模式》笔记18-责任链模式/"></span>
+<span class="disqus-comment-count" style="display: none" data-disqus-url="http://coolview.github.io/2018/08/02/%E3%80%8AHead-First-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%8B%E7%AC%94%E8%AE%B018-%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/"></span>
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">©2016-2019 CoolView</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full"><span class="min "></span></button>
+<button class="post-toc-menu"><span class="post-toc-menu-icons"></span></button>
+<div class="post-toc"><span class="post-toc-title">目录</span>
+    <div class="post-toc-content">
+
+    </div>
+</div>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+<div class="acParent"></div>
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.0.1" ></script>
+
+<script src="//cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.js"></script>
+<script src="//cdn.bootcss.com/photoswipe/4.1.2/photoswipe-ui-default.min.js"></script>
+
+<script src="/js/script.js?v=1.0.1" ></script>
+<script>
+    var img_resize = 'photoSwipe';
+    /*作者、标签的自动补全*/
+    $(function () {
+        $('.search').AutoComplete({
+            'data': ['#Android','#Java','#JUnit','#IntelliJ','#JavaScript','#Python','#Linux','#MQTT','#MongoDB','#MyBatis','#MySQL','#Mybatis','#Nginx','#SQL','#Spring','#Tomcat','#编码','#Windows','#VSCode','#dos','#jQuery','#html','#sublime','#Effective Java','#redis','#log4j','#设计模式','#Java编程思想','#数据结构','#大话数据结构','#第一行代码','#Shiro','#技巧','#Hexo','#Git','#Quartz','#支付宝',],
+            'itemHeight': 20,
+            'width': 418
+        }).AutoComplete('show');
+    })
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $(".post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().split('\n').length - 1, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+
+        // PhotoSwipe
+        $('article').each(function(i){
+            $(this).find('img').each(function(){
+                if ($(this).closest('figure').hasClass('article-gallery-img')) {
+                    return;
+                }
+                var alt = this.alt;
+                $(this)
+                    .wrap('<figure class="article-gallery-img" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"></figure>')
+                    .wrap('<a href="' + this.src + '" title="' + alt + '"></a>');
+                $(this).after('<div class="img_alt"><span>' + (alt || '') + '</span></div>');
+            });
+        });
+
+        var pswpElement = document.querySelectorAll('.pswp')[0];
+        if (pswpElement) {
+            var gallerySelector = '.article-gallery, article';
+
+            var initPhotoSwipeFromDOM = function(gallerySelector) {
+
+                // parse slide data (url, title, size ...) from DOM elements
+                // (children of gallerySelector)
+                var parseThumbnailElements = function(el) {
+                    var thumbElements = $(el).find('figure.article-gallery-img').toArray(),
+                        numNodes = thumbElements.length,
+                        items = [],
+                        figureEl,
+                        linkEl,
+                        size,
+                        imgEl,
+                        item;
+
+                    for (var i = 0; i < numNodes; i++) {
+
+                        figureEl = thumbElements[i]; // <figure> element
+
+                        // include only element nodes
+                        if (figureEl.nodeType !== 1) {
+                            continue;
+                        }
+
+                        linkEl = figureEl.children[0]; // <a> element
+                        imgEl = linkEl.children[0]; // <img>
+
+                        size = linkEl.getAttribute('data-size');
+                        size = size && size.split('x');
+
+                        // create slide object
+                        item = {
+                            src: linkEl.getAttribute('href'),
+                            w: size && parseInt(size[0], 10) || imgEl.width,
+                            h: size && parseInt(size[1], 10) || imgEl.height
+                        };
+
+                        if (figureEl.children.length > 1) {
+                            // <figcaption> content
+                            item.title = figureEl.children[1].innerHTML;
+                        }
+
+                        if (linkEl.children.length > 0) {
+                            // <img> thumbnail element, retrieving thumbnail url
+                            item.msrc = linkEl.children[0].getAttribute('src');
+                        }
+
+                        item.el = figureEl; // save link to element for getThumbBoundsFn
+                        items.push(item);
+                    }
+
+                    return items;
+                };
+
+                // find nearest parent element
+                var closest = function closest(el, fn) {
+                    return el && (fn(el) ? el : closest(el.parentNode, fn));
+                };
+
+                // triggers when user clicks on thumbnail
+                var onThumbnailsClick = function(e) {
+                    e = e || window.event;
+
+                    var eTarget = e.target || e.srcElement;
+
+                    // find root element of slide
+                    var clickedListItem = closest(eTarget, function(el) {
+                        return (el.tagName && el.tagName.toUpperCase() === 'FIGURE');
+                    });
+
+                    if (!clickedListItem) {
+                        return;
+                    }
+
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    } else {
+                        e.returnValue = false;
+                    }
+
+                    // find index of clicked item by looping through all child nodes
+                    // alternatively, you may define index via data- attribute
+                    var clickedGallery = $(clickedListItem).closest(gallerySelector)[0],
+                        childNodes = $(clickedGallery).find('figure.article-gallery-img').toArray(),
+                        numChildNodes = childNodes.length,
+                        nodeIndex = 0,
+                        index;
+
+                    for (var i = 0; i < numChildNodes; i++) {
+                        if (childNodes[i].nodeType !== 1) {
+                            continue;
+                        }
+
+                        if (childNodes[i] === clickedListItem) {
+                            index = nodeIndex;
+                            break;
+                        }
+                        nodeIndex++;
+                    }
+
+
+
+                    if (index >= 0) {
+                        // open PhotoSwipe if valid index found
+                        openPhotoSwipe(index, clickedGallery);
+                    }
+                    return false;
+                };
+
+                // parse picture index and gallery index from URL (#&pid=1&gid=2)
+                var photoswipeParseHash = function() {
+                    var hash = window.location.hash.substring(1),
+                        params = {};
+
+                    if (hash.length < 5) {
+                        return params;
+                    }
+
+                    var vars = hash.split('&');
+                    for (var i = 0; i < vars.length; i++) {
+                        if (!vars[i]) {
+                            continue;
+                        }
+                        var pair = vars[i].split('=');
+                        if (pair.length < 2) {
+                            continue;
+                        }
+                        params[pair[0]] = pair[1];
+                    }
+
+                    if (params.gid) {
+                        params.gid = parseInt(params.gid, 10);
+                    }
+
+                    return params;
+                };
+
+                var openPhotoSwipe = function(index, galleryElement, disableAnimation, fromURL) {
+                    var pswpElement = document.querySelectorAll('.pswp')[0],
+                        gallery,
+                        options,
+                        items;
+
+                    items = parseThumbnailElements(galleryElement);
+
+                    // define options (if needed)
+                    options = {
+
+                        // define gallery index (for URL)
+                        galleryUID: galleryElement.getAttribute('data-pswp-uid'),
+
+                        getThumbBoundsFn: function(index) {
+                            // See Options -> getThumbBoundsFn section of documentation for more info
+                            var thumbnail = items[index].el.getElementsByTagName('img')[0], // find thumbnail
+                                pageYScroll = window.pageYOffset || document.documentElement.scrollTop,
+                                rect = thumbnail.getBoundingClientRect();
+
+                            return {
+                                x: rect.left,
+                                y: rect.top + pageYScroll,
+                                w: rect.width
+                            };
+                        }
+                    };
+
+                    // PhotoSwipe opened from URL
+                    if (fromURL) {
+                        if (options.galleryPIDs) {
+                            // parse real index when custom PIDs are used
+                            // http://photoswipe.com/documentation/faq.html#custom-pid-in-url
+                            for (var j = 0; j < items.length; j++) {
+                                if (items[j].pid == index) {
+                                    options.index = j;
+                                    break;
+                                }
+                            }
+                        } else {
+                            // in URL indexes start from 1
+                            options.index = parseInt(index, 10) - 1;
+                        }
+                    } else {
+                        options.index = parseInt(index, 10);
+                    }
+
+                    // exit if index not found
+                    if (isNaN(options.index)) {
+                        return;
+                    }
+
+                    if (disableAnimation) {
+                        options.showAnimationDuration = 0;
+                    }
+
+                    // Pass data to PhotoSwipe and initialize it
+                    gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
+
+                    gallery.listen('imageLoadComplete', function(index, item) {
+                        var linkEl = item.el.children[0];
+                        var img = item.container.children[0];
+                        if (!linkEl.getAttribute('data-size')) {
+                            linkEl.setAttribute('data-size', img.naturalWidth + 'x' + img.naturalHeight);
+                            item.w = img.naturalWidth;
+                            item.h = img.naturalHeight;
+                            gallery.invalidateCurrItems();
+                            gallery.updateSize(true);
+                        }
+                    });
+
+                    gallery.init();
+                };
+
+                // loop through all gallery elements and bind events
+                var galleryElements = document.querySelectorAll(gallerySelector);
+
+                for (var i = 0, l = galleryElements.length; i < l; i++) {
+                    galleryElements[i].setAttribute('data-pswp-uid', i + 1);
+                    galleryElements[i].onclick = onThumbnailsClick;
+                }
+
+                // Parse URL and open gallery if it contains #&pid=3&gid=1
+                var hashData = photoswipeParseHash();
+                if (hashData.pid && hashData.gid) {
+                    openPhotoSwipe(hashData.pid, galleryElements[hashData.gid - 1], true, true);
+                }
+            };
+
+            // execute above function
+            initPhotoSwipeFromDOM(gallerySelector);
+        }
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: #fafafa;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 552px;
+    }
+    .nav.fullscreen {
+        margin-left: -552px;
+    }
+    .nav-left {
+        width: 130px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 522px;
+        }
+        .nav.fullscreen {
+            margin-left: -522px;
+        }
+        .nav-left {
+            width: 130px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 522px;
+            margin-left: -522px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+        .nav .hide-list.fullscreen {
+            left: 522px
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+    .post .pjax article .article-entry>ol, .post .pjax article .article-entry>ul, .post .pjax article>ol, .post .pjax article>ul{
+        border: #e2dede solid 1px;
+        border-radius: 10px;
+        padding: 10px 32px 10px 56px;
+    }
+    .post .pjax article .article-entry li>ol, .post .pjax article .article-entry li>ul,.post .pjax article li>ol, .post .pjax article li>ul{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .post .pjax article .article-entry>ol>li, .post .pjax article .article-entry>ul>li,.post .pjax article>ol>li, .post .pjax article>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    .post .pjax article .article-entry li>ol>li, .post .pjax article .article-entry li>ul>li,.post .pjax article li>ol>li, .post .pjax article li>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+    .nav-right:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+        background: url("https://i.loli.net/2019/07/22/5d3521411f3f169375.png");
+        background-repeat: no-repeat;
+        background-position: 50% 0;
+        -ms-background-size: cover;
+        -o-background-size: cover;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        background-size: cover;
+    }
+    
+
+    
+</style>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element, as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. PhotoSwipe keeps only 3 slides in DOM to save memory. -->
+        <!-- don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+</html>
